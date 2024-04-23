@@ -28,10 +28,10 @@ class MainActivity : ComponentActivity() {
                 startDestination = QuestScreen.Login.name,
             ) {
                 composable(route = QuestScreen.Main.name) {
-                    MainScreen(navController)
+                    MainScreen()
                 }
                 composable(route = QuestScreen.Login.name) {
-                    LoginScreen(navController)
+                    LoginScreen(onNextButtonClicked = {navController.navigate(QuestScreen.Main.name)})
                 }
             }
         }
