@@ -15,7 +15,8 @@ enum class QuestScreen() {
     Main,
     Quest,
     RLEQuesth,
-    Contact
+    Contact,
+    CipherScreen
 }
 
 class MainActivity : ComponentActivity() {
