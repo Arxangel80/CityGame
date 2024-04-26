@@ -1,8 +1,6 @@
 package com.example.citygame
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -26,26 +24,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.example.citygame.ui.theme.CityGameTheme
 
 @Composable
-fun LoginScreen(navController: NavController) {
-    LoginDrawer()
+fun LoginScreen(onNextButtonClicked: () -> Unit) {
+    LoginDrawer(onNextButtonClicked)
 }
 data class LoginCredentials(
     var login: String = "",
@@ -67,13 +63,11 @@ data class RegisterCredentials(
 }
 
 fun checkCredentials(creds: LoginCredentials, context: Context): Boolean{
-    if (creds.isNotEmpty() && creds.login == "admin") {
-        context.startActivity(Intent(context, MainActivity::class.java))
-        (context as Activity).finish()
-        return true
+    return if (creds.isNotEmpty() && creds.login == "admin") {
+        true
     } else {
         Toast.makeText(context, "Wrong Credentials", Toast.LENGTH_SHORT).show()
-        return false
+        false
     }
 }
 
@@ -88,8 +82,7 @@ fun TransparentTextField(
         value = value,
         placeholder = placeholder,
         onValueChange = onValueChange,
-        colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent,
-            textColor = Color.White),
+        colors = TextFieldDefaults.colors(unfocusedContainerColor = Color.Transparent, unfocusedTextColor = Color.White)
     )
 }
 @OptIn(ExperimentalMaterial3Api::class)
@@ -100,7 +93,7 @@ fun TransparentPasswordField(
     onValueChange: (String) -> Unit,
     placeholder: @Composable (() -> Unit)?) {
 
-    var isPasswordVisible by remember { mutableStateOf(false) }
+//    var isPasswordVisible by remember { mutableStateOf(false) }
 
 ////    val leadingIcon = @Composable {
 ////        Icon(
@@ -129,21 +122,23 @@ fun TransparentPasswordField(
         keyboardActions = KeyboardActions(
             onDone = { onProceed() }
         ),
-        colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent,
-            textColor = Color.White),
+        colors = TextFieldDefaults.colors(unfocusedContainerColor = Color.Transparent,
+            unfocusedTextColor = Color.White),
     )
 }
 
-fun submit(credentials:LoginCredentials, context:Context) {
+fun submit(credentials:LoginCredentials, context:Context, proceed: () -> Unit) {
     if (!checkCredentials(credentials, context)) {
         credentials.login = ""
         credentials.pwd = ""
     }
+    else {
+        proceed()
+    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginDrawer() {
+fun LoginDrawer(onNextButtonClicked: () -> Unit) {
     var credentials by remember { mutableStateOf(LoginCredentials()) }
     val context = LocalContext.current
     var isButtonEnabled by remember { mutableStateOf(credentials.isNotEmpty()) }
@@ -173,8 +168,8 @@ fun LoginDrawer() {
                         onValueChange = { data -> credentials = credentials.copy(pwd = data)
                                         isButtonEnabled = credentials.isNotEmpty() },
                         placeholder = { Text("Password", color = Color.White, fontFamily = FontFamily.SansSerif)},
-                        onProceed = {submit(credentials, context)})
-                    Button(onClick = {},
+                        onProceed = {submit(credentials, context, onNextButtonClicked)})
+                    Button(onClick = {submit(credentials, context, onNextButtonClicked)},
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (isButtonEnabled) Color.Cyan else Color.Gray)) {
                         Text("Let's go!")
@@ -200,7 +195,6 @@ fun LoginDrawer() {
 fun RegisterDrawer() {
     var credentials by remember { mutableStateOf(RegisterCredentials()) }
     var isButtonEnabled by remember { mutableStateOf(credentials.isNotEmpty()) }
-    val context = LocalContext.current
 
     Box(contentAlignment = Alignment.Center) {
         Image(
@@ -255,7 +249,8 @@ fun RegisterDrawer() {
                         },
             placeholder = { Text("Repeat password", color = Color.White, fontFamily = FontFamily.SansSerif) }
         )
-        Button(onClick = {},
+        Button(onClick = {//Todo
+             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (isButtonEnabled) Color.Cyan else Color.Gray)) {
             Text("Let's go to the TheQuest!")
@@ -263,14 +258,14 @@ fun RegisterDrawer() {
     }
     }
 }
-@Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
-@Composable
-fun LoginFormPreview() {
-    CityGameTheme {
-//        LoginDrawer()
-        RegisterDrawer()
-    }
-}
+//@Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
+//@Composable
+//fun LoginFormPreview() {
+//    CityGameTheme {
+////        LoginDrawer()
+//        RegisterDrawer()
+//    }
+//}
 
 //@Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
 //@Composable

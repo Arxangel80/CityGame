@@ -14,7 +14,7 @@ enum class QuestScreen() {
     Login,
     Main,
     Quest,
-    Info,
+    RLEQuesth,
     Contact
 }
 
@@ -25,13 +25,14 @@ class MainActivity : ComponentActivity() {
             val navController: NavHostController = rememberNavController()
             NavHost(
                 navController = navController,
-                startDestination = QuestScreen.Login.name,
+                startDestination = QuestScreen.RLEQuesth.name
+//                startDestination = QuestScreen.Login.name
             ) {
                 composable(route = QuestScreen.Main.name) {
-                    MainScreen(navController)
+                    MainScreen()
                 }
                 composable(route = QuestScreen.Login.name) {
-                    LoginScreen(navController)
+                    LoginScreen(onNextButtonClicked = {navController.navigate(QuestScreen.Main.name)})
                 }
             }
         }
