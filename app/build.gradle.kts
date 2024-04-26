@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -52,6 +53,7 @@ android {
 dependencies {
     val nav_version = "2.7.7"
     val maps_compose_version = "4.3.3"
+    val play_services_version= "21.2.0"
 
     implementation("androidx.core:core-ktx:1.13.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
@@ -70,4 +72,5 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation("com.google.maps.android:maps-compose:$maps_compose_version")
+    implementation("com.google.android.gms:play-services-location:$play_services_version")
 }

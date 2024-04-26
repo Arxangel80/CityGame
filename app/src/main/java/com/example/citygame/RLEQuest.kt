@@ -64,5 +64,5 @@ fun BoardBase(height:Int, width: Int) {
 @Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
 @Composable
 fun BoardBasePreview() {
-    BoardBase(32, 32)
+    BoardBase(16, 16)
 }
