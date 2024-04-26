@@ -82,8 +82,7 @@ fun TransparentTextField(
         value = value,
         placeholder = placeholder,
         onValueChange = onValueChange,
-        colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent,
-            textColor = Color.White),
+        colors = TextFieldDefaults.colors(unfocusedContainerColor = Color.Transparent, unfocusedTextColor = Color.White)
     )
 }
 @OptIn(ExperimentalMaterial3Api::class)
@@ -123,8 +122,8 @@ fun TransparentPasswordField(
         keyboardActions = KeyboardActions(
             onDone = { onProceed() }
         ),
-        colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent,
-            textColor = Color.White),
+        colors = TextFieldDefaults.colors(unfocusedContainerColor = Color.Transparent,
+            unfocusedTextColor = Color.White),
     )
 }
 
