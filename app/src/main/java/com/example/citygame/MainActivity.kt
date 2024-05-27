@@ -3,27 +3,26 @@ package com.example.citygame
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.Surface
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.android.gms.location.FusedLocationProviderClient
 
 
 enum class QuestScreen() {
     Login,
     Main,
-    Quest,
-    RLEQuesth,
-    Contact,
-    CipherScreen
+    ARQuest,
+    RLEQuest,
+    CesarQuest,
+    GestureQuest
 }
 
 class MainActivity : ComponentActivity() {
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    val debugMode: Boolean = false
     override fun onCreate(savedInstanceState: Bundle?) {
         if (!checkLocationPermission()) {
             requestLocationPermission()
@@ -34,13 +33,29 @@ class MainActivity : ComponentActivity() {
             val navController: NavHostController = rememberNavController()
             NavHost(
                 navController = navController,
-                startDestination = QuestScreen.Main.name
+                startDestination = QuestScreen.Login.name
             ) {
-                composable(route = QuestScreen.Main.name) {
-                    MainScreen()
-                }
                 composable(route = QuestScreen.Login.name) {
                     LoginScreen(onNextButtonClicked = {navController.navigate(QuestScreen.Main.name)})
+                }
+                composable(route = QuestScreen.Main.name) {
+                    MainScreen(debugMode,
+                        navigateToGestureQuest = {navController.navigate(QuestScreen.GestureQuest.name)},
+                        navigateToARQuest = {navController.navigate(QuestScreen.ARQuest.name)},
+                        navigateToRLEQuest = {navController.navigate(QuestScreen.RLEQuest.name)},
+                        navigateToCesarQuest = {navController.navigate(QuestScreen.CesarQuest.name)})
+                }
+                composable(route = QuestScreen.ARQuest.name) {
+                    ARQuestScreen()
+                }
+                composable(route = QuestScreen.RLEQuest.name) {
+                    RLEQuestScreen(15, 10)
+                }
+                composable(route = QuestScreen.CesarQuest.name) {
+                    CesarQuestScreen()
+                }
+                composable(route = QuestScreen.GestureQuest.name) {
+                    GestureQuestScreen()
                 }
             }
         }

@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">CityGame</string>
-    <string name="LoginImageDesc">Poshel naxui invalidy ne nuzni</string>
     <string name="SignUp">NEW ACCOUNT</string>
     <string name="ForgotPassword">FORGOT PASSWORD</string>
 </resources>

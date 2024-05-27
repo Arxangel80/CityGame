@@ -23,7 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun BoardBase(height:Int, width: Int) {
+fun RLEQuestScreen(height:Int, width: Int) {
     val truePattern = listOf(true, true, false, false, false, false, false, false, false)
     var textState by remember {mutableStateOf("")}
     val columnState: SnapshotStateList<Boolean> = remember {
@@ -63,6 +63,6 @@ fun BoardBase(height:Int, width: Int) {
 
 @Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
 @Composable
-fun BoardBasePreview() {
-    BoardBase(16, 16)
+fun RLEQuestScreenPreview() {
+    RLEQuestScreen(16, 16)
 }
