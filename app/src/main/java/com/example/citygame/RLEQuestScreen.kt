@@ -1,5 +1,6 @@
 package com.example.citygame
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,8 +24,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun RLEQuestScreen(height:Int, width: Int) {
-    val truePattern = listOf(true, true, false, false, false, false, false, false, false)
+fun RLEQuestScreen(height:Int, width: Int, debugMode: Boolean = false) {
+    // "P" letter pattern
+//    val truePattern = listOf(false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+//        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+//        false, false, true, false, false, true, false, false, false, false, false, true, true, true, true, true, true,
+//        false, false, false, true, true, false, true, true, false, true, true, false, true, true, false, false, false,
+//        false, false, false, true, true, true, false, false, false, true, true, true, false, false, true, false, true,
+//        false, true, false, false, true, false, true, false, true, false, false, true, false, false, true, false, false,
+//        true, false, true, false, false, true, true, false, false, false, true, true, true, false, false, false, false,
+//        false, false, true, true, false, true, true, false, true, true, false, true, true, false, false, false, true,
+//        true, false, false, true, true, false, false, false)
+    // Cat pattern
+    val truePattern = listOf(true, true, false, false, false, false, true, true, true, false, true, true, true, true, false, true, true,
+        false, false, false, false, false, false, true, true, false, true, false, false, true, false, true, true, false, false, false, false,
+        false, false, true, true, false, false, true, true, false, false, true, false, true, false, false, false, false, true, false, false,
+        false, true, true, true, true, false, false)
     var textState by remember {mutableStateOf("")}
     val columnState: SnapshotStateList<Boolean> = remember {
         mutableStateListOf<Boolean>().apply {
@@ -40,11 +55,6 @@ fun RLEQuestScreen(height:Int, width: Int) {
                     Column(modifier = Modifier
                         .clickable {
                             columnState[i] = !columnState[i]
-                            println(columnState)
-                            textState = if (columnState == truePattern)
-                                "True Pattern"
-                            else
-                                "False Pattern"
                         }
                         .background(if (columnState[i]) Color.Black else Color.Green)
                         .border(border = BorderStroke(1.dp, Color.Red))
@@ -52,11 +62,17 @@ fun RLEQuestScreen(height:Int, width: Int) {
                         .aspectRatio(1f)
                     )
                     {
+
                     }
                 }
             }
+            if (debugMode)
+            Log.i("Pattern","Your pattern is: ${columnState.toList()}")
         }
-        Text(textState)
+        Text(text = if (columnState.toList() == truePattern)
+            "True Pattern"
+        else
+            "False Pattern")
     }
 }
 

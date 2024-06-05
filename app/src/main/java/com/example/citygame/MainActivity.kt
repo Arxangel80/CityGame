@@ -2,10 +2,13 @@ package com.example.citygame
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,44 +21,52 @@ enum class QuestScreen() {
     ARQuest,
     RLEQuest,
     CesarQuest,
-    GestureQuest
+    GestureQuest,
+    CardanGrilleQuest
 }
 
 class MainActivity : ComponentActivity() {
-    val debugMode: Boolean = false
+    val debugMode: Boolean = true
     override fun onCreate(savedInstanceState: Bundle?) {
         if (!checkLocationPermission()) {
             requestLocationPermission()
         }
 
+
         super.onCreate(savedInstanceState)
         setContent {
-            val navController: NavHostController = rememberNavController()
+            val navController = rememberNavController()
             NavHost(
                 navController = navController,
-                startDestination = QuestScreen.Login.name
+                startDestination = QuestScreen.GestureQuest.name
             ) {
                 composable(route = QuestScreen.Login.name) {
-                    LoginScreen(onNextButtonClicked = {navController.navigate(QuestScreen.Main.name)})
+                    LoginScreen(onNextButtonClicked = {navController.navigate(QuestScreen.Main.name) {
+                        popUpTo(0) }
+                    })
                 }
                 composable(route = QuestScreen.Main.name) {
                     MainScreen(debugMode,
                         navigateToGestureQuest = {navController.navigate(QuestScreen.GestureQuest.name)},
                         navigateToARQuest = {navController.navigate(QuestScreen.ARQuest.name)},
                         navigateToRLEQuest = {navController.navigate(QuestScreen.RLEQuest.name)},
-                        navigateToCesarQuest = {navController.navigate(QuestScreen.CesarQuest.name)})
+                        navigateToCesarQuest = {navController.navigate(QuestScreen.CesarQuest.name)},
+                        navigateToCardanGrilleQuest = {navController.navigate(QuestScreen.CardanGrilleQuest.name)})
                 }
                 composable(route = QuestScreen.ARQuest.name) {
                     ARQuestScreen()
                 }
                 composable(route = QuestScreen.RLEQuest.name) {
-                    RLEQuestScreen(15, 10)
+                    RLEQuestScreen(8, 8, debugMode)
                 }
                 composable(route = QuestScreen.CesarQuest.name) {
                     CesarQuestScreen()
                 }
                 composable(route = QuestScreen.GestureQuest.name) {
                     GestureQuestScreen()
+                }
+                composable(route = QuestScreen.CardanGrilleQuest.name) {
+                    CardanGrilleQuest()
                 }
             }
         }
@@ -73,7 +84,8 @@ class MainActivity : ComponentActivity() {
         this.requestPermissions(
             arrayOf(
                 Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.CAMERA
             ),
             PERMISSION_REQUEST_CODE
         )

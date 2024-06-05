@@ -47,15 +47,15 @@ import com.google.maps.android.compose.rememberCameraPositionState
 
 data class Quest(
     val name: String,
-    val coordinates: LatLng,
-    val navScreen: QuestScreen
+    val coordinates: LatLng
 )
 
 object Quests {
-    val ARQuest = Quest("AR Quest", LatLng(52.400395, 16.955508), QuestScreen.ARQuest)
-    val RLEQuest = Quest("RLE Quest", LatLng(52.402395, 16.955508), QuestScreen.RLEQuest)
-    val CesarCipherQuest = Quest("Cesar cipher", LatLng(52.404395, 16.955508), QuestScreen.CesarQuest)
-    val GestureQuest = Quest("Gesture quest", LatLng(52.406395, 16.955508), QuestScreen.GestureQuest)
+    val ARQuest = Quest("AR Quest", LatLng(52.400395, 16.955508))
+    val RLEQuest = Quest("RLE Quest", LatLng(52.402395, 16.955508))
+    val CesarCipherQuest = Quest("Cesar cipher", LatLng(52.404395, 16.955508))
+    val GestureQuest = Quest("Gesture quest", LatLng(52.406395, 16.955508))
+    val CardanGrilleQuest = Quest("Cardan grille quest", LatLng(52.408395, 16.955508))
 }
 @SuppressLint("MissingPermission")
 fun getCurrentLocation(context: Context, onLocationFetched: (location: LatLng) -> Unit) {
@@ -169,12 +169,12 @@ fun BottomPullOutMenu() {
 }
 
 @Composable
-fun MainScreen(debugMode: Boolean, navigateToARQuest: () -> Unit, navigateToRLEQuest: () -> Unit, navigateToCesarQuest: () -> Unit, navigateToGestureQuest: () -> Unit) {
-    MainDrawer(debugMode, navigateToARQuest, navigateToRLEQuest, navigateToCesarQuest, navigateToGestureQuest)
+fun MainScreen(debugMode: Boolean, navigateToARQuest: () -> Unit, navigateToRLEQuest: () -> Unit, navigateToCesarQuest: () -> Unit, navigateToGestureQuest: () -> Unit, navigateToCardanGrilleQuest: () -> Unit) {
+    MainDrawer(debugMode, navigateToARQuest, navigateToRLEQuest, navigateToCesarQuest, navigateToGestureQuest, navigateToCardanGrilleQuest)
 }
 
 @Composable
-fun MainDrawer(debugMode: Boolean, navigateToARQuest: () -> Unit, navigateToRLEQuest: () -> Unit, navigateToCesarQuest: () -> Unit, navigateToGestureQuest: () -> Unit) {
+fun MainDrawer(debugMode: Boolean, navigateToARQuest: () -> Unit, navigateToRLEQuest: () -> Unit, navigateToCesarQuest: () -> Unit, navigateToGestureQuest: () -> Unit, navigateToCardanGrilleQuest: () -> Unit) {
     var showMap by remember { mutableStateOf(false) }
     var location by remember { mutableStateOf(LatLng(0.0, 0.0)) }
     val content = LocalContext.current
@@ -214,45 +214,25 @@ fun MainDrawer(debugMode: Boolean, navigateToARQuest: () -> Unit, navigateToRLEQ
                 }
             ) {
                 QuestMarker(Quests.ARQuest, navigateToARQuest)
-//                QuestMarker(Quests.RLEQuest, navigateToRLEQuest)
-                Marker(
-                    state = MarkerState(position = Quests.RLEQuest.coordinates),
-                    title = Quests.RLEQuest.name,
-                    snippet = "Placeholder for quest description",
-                    onInfoWindowClick = { navigateToRLEQuest() }
-//                    content = {
-//                        Surface(shape = RoundedCornerShape(10.dp), color = Color.White) {
-//                            Column (horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(15.dp)) {
-//                                Text(text = "${it.title}")
-//                                Text(text = "${it.snippet}")
-//                                Button(onClick = { }) {
-//                                    Text(text = "Open quest description")
-//                                }
-//                            }
-//                        }
-//                    }
-                )
+                QuestMarker(Quests.RLEQuest, navigateToRLEQuest)
                 QuestMarker(Quests.CesarCipherQuest, navigateToCesarQuest)
                 QuestMarker(Quests.GestureQuest, navigateToGestureQuest)
+                QuestMarker(Quests.CardanGrilleQuest, navigateToCardanGrilleQuest)
             }
         }
-        if (debugMode) {
+    }
+        BottomPullOutMenu()
+    }
+    if (debugMode) {
+        Surface(color = Color.White) {
             Row {
                 Column {
-                    Text("Current coordinates:")
-                    Text("Longitude:")
-                    Text("Latitude:")
-                    Button(onClick = { /*TODO*/ }) {
-                        Text("Open navigation")
-                    }
-                }
+                    Text("Current coordinates:" )
+                    Text("Longitude: ${location.longitude}")
+                    Text("Latitude: ${location.latitude}")
                 }
             }
         }
-        Button(onClick = {navigateToRLEQuest()}) {
-            Text(text = "AAAAAAAAAA")
-        }
-//    BottomPullOutMenu()
     }
 }
 
