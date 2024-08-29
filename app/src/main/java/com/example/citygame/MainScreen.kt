@@ -6,6 +6,7 @@ import android.location.Location
 import android.util.Log
 import android.widget.Button
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.consumePositionChange
 import androidx.compose.ui.input.pointer.pointerInput
@@ -73,7 +75,6 @@ fun getCurrentLocation(context: Context, onLocationFetched: (location: LatLng) -
             }
         }
         .addOnFailureListener { exception: Exception ->
-            // Handle failure to get location
             Log.d("MAP-EXCEPTION",exception.message.toString())
         }
 }
@@ -100,20 +101,93 @@ fun QuestMarker(quest: Quest, navTo: () -> Unit) {
     )
 }
 @Composable
+fun MainScreen(debugMode: Boolean, navigateToARQuest: () -> Unit, navigateToRLEQuest: () -> Unit, navigateToCesarQuest: () -> Unit,
+               navigateToGestureQuest: () -> Unit,
+               navigateToCardanGrilleQuest: () -> Unit, navigateToNFCQuest: () -> Unit) {
+    MainDrawer(debugMode, navigateToARQuest, navigateToRLEQuest, navigateToCesarQuest, navigateToGestureQuest, navigateToCardanGrilleQuest, navigateToNFCQuest)
+}
+
+@Composable
+fun MainDrawer(debugMode: Boolean, navigateToARQuest: () -> Unit, navigateToRLEQuest: () -> Unit,
+               navigateToCesarQuest: () -> Unit, navigateToGestureQuest: () -> Unit,
+               navigateToCardanGrilleQuest: () -> Unit, navigateToNFCQuest: () -> Unit) {
+    var showMap by remember { mutableStateOf(false) }
+    var location by remember { mutableStateOf(LatLng(0.0, 0.0)) }
+    val content = LocalContext.current
+
+    // Get the last known location
+    getCurrentLocation(content) {
+        location = it
+        showMap = true
+    }
+
+    Box (contentAlignment = Alignment.BottomStart, modifier = Modifier.fillMaxSize()) {
+    if(showMap) {
+        Column {
+            val cameraPositionState = rememberCameraPositionState {
+                position = CameraPosition.fromLatLngZoom(location, 16f)
+            }
+
+            var uiSettings by remember {
+                mutableStateOf(
+                    MapUiSettings(
+                        myLocationButtonEnabled = true,
+                        zoomControlsEnabled = false
+                    )
+                )
+            }
+
+            GoogleMap(cameraPositionState = cameraPositionState,
+                properties = MapProperties(isMyLocationEnabled = true),
+                uiSettings = uiSettings,
+                onMyLocationButtonClick = {
+                    getCurrentLocation(content) {
+                        location = it
+                        showMap = true
+                    }
+                    cameraPositionState.position = CameraPosition.fromLatLngZoom(location, 16f)
+                    true
+                }
+            ) {
+                QuestMarker(Quests.ARQuest, navigateToARQuest)
+                QuestMarker(Quests.RLEQuest, navigateToRLEQuest)
+                QuestMarker(Quests.CesarCipherQuest, navigateToCesarQuest)
+                QuestMarker(Quests.GestureQuest, navigateToGestureQuest)
+                QuestMarker(Quests.CardanGrilleQuest, navigateToCardanGrilleQuest)
+                QuestMarker(Quests.NFCQuest, navigateToNFCQuest)
+            }
+        }
+    }
+        BottomPullOutMenu()
+    }
+    if (debugMode) {
+        Surface(color = Color.White) {
+                Column {
+                    Text("Current coordinates:")
+                    Text("Longitude: ${location.longitude}")
+                    Text("Latitude: ${location.latitude}")
+                }
+        }
+    }
+}
+
+@Composable
 fun BottomPullOutMenu() {
-//    var expanded by remember { mutableStateOf(false) }
     var offsetY by remember { mutableFloatStateOf(110f) }
+    var expanded by remember { mutableStateOf(false) }
 
     Box(
         Modifier
             .background(Color.Transparent)
+            .alpha(0.8f)
+            .fillMaxWidth(0.75f)
             .pointerInput(Unit) {
                 detectDragGestures { change, dragAmount ->
                     offsetY = (offsetY + dragAmount.y).coerceAtMost(110f)
                     if (offsetY > 0.1f) {
-//                        expanded = true
+                        expanded = true
                     } else {
-//                        expanded = false
+                        expanded = false
                         offsetY = 0.1f
                     }
                     change.consumePositionChange()
@@ -169,85 +243,22 @@ fun BottomPullOutMenu() {
     }
 }
 
-@Composable
-fun MainScreen(debugMode: Boolean, navigateToARQuest: () -> Unit, navigateToRLEQuest: () -> Unit, navigateToCesarQuest: () -> Unit,
-               navigateToGestureQuest: () -> Unit,
-               navigateToCardanGrilleQuest: () -> Unit, navigateToNFCQuest: () -> Unit) {
-    MainDrawer(debugMode, navigateToARQuest, navigateToRLEQuest, navigateToCesarQuest, navigateToGestureQuest, navigateToCardanGrilleQuest, navigateToNFCQuest)
-}
+
 
 @Composable
-fun MainDrawer(debugMode: Boolean, navigateToARQuest: () -> Unit, navigateToRLEQuest: () -> Unit,
-               navigateToCesarQuest: () -> Unit, navigateToGestureQuest: () -> Unit,
-               navigateToCardanGrilleQuest: () -> Unit, navigateToNFCQuest: () -> Unit) {
-    var showMap by remember { mutableStateOf(false) }
-    var showMenu by remember { mutableStateOf(false) }
-    var location by remember { mutableStateOf(LatLng(0.0, 0.0)) }
-    val content = LocalContext.current
-
-    // Get the last known location
-    getCurrentLocation(content) {
-        location = it
-        showMap = true
-    }
-
-    Box (contentAlignment = Alignment.BottomEnd, modifier = Modifier.fillMaxSize()) {
-    if(showMap) {
-        Column {
-            val cameraPositionState = rememberCameraPositionState {
-                position = CameraPosition.fromLatLngZoom(location, 16f)
-            }
-
-            var uiSettings by remember {
-                mutableStateOf(
-                    MapUiSettings(
-                        myLocationButtonEnabled = true,
-                        zoomControlsEnabled = false
-                    )
-                )
-            }
-
-            GoogleMap(cameraPositionState = cameraPositionState,
-                properties = MapProperties(isMyLocationEnabled = true),
-                uiSettings = uiSettings,
-                onMyLocationButtonClick = {
-                    getCurrentLocation(content) {
-                        location = it
-                        showMap = true
-                    }
-                    cameraPositionState.position = CameraPosition.fromLatLngZoom(location, 16f)
-                    true
-                }
-            ) {
-                QuestMarker(Quests.ARQuest, navigateToARQuest)
-                QuestMarker(Quests.RLEQuest, navigateToRLEQuest)
-                QuestMarker(Quests.CesarCipherQuest, navigateToCesarQuest)
-                QuestMarker(Quests.GestureQuest, navigateToGestureQuest)
-                QuestMarker(Quests.CardanGrilleQuest, navigateToCardanGrilleQuest)
-                QuestMarker(Quests.NFCQuest, navigateToNFCQuest)
-            }
-        }
-    }
-        if (showMenu) {
-            BottomPullOutMenu()
-        }
-    }
-    if (debugMode) {
-        Surface(color = Color.White) {
-                Column {
-                    Text("Current coordinates:")
-                    Text("Longitude: ${location.longitude}")
-                    Text("Latitude: ${location.latitude}")
-                    Button(onClick = {showMenu = !showMenu}) {
-                        Text("Show menu")
-                    }
-                }
-        }
+fun NavigationItem(label: String, onClick: () -> Unit) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 8.dp),
+        shape = RoundedCornerShape(8.dp),
+        color = Color.LightGray
+    ) {
+        Text(
+            text = label,
+            modifier = Modifier.padding(16.dp),
+            color = Color.Black
+        )
     }
 }
-
-//@Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
-//@Composable
-//fun MainDrawerPreview() {
-//    MainDrawer()
-//}

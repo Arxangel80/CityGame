@@ -106,15 +106,10 @@ class MainActivity : ComponentActivity() {
                     CardanGrilleQuest()
                 }
                 composable(route = QuestScreen.NFCQuest.name) {
-                    NFCQuest(tag = nfcViewModel.getTagToWrite(), readedMsg = readedMsg)
+                    NFCQuest( readedMsg = readedMsg)
                 }
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        enableNfcForegroundDispatch()
     }
 
     private fun enableNfcForegroundDispatch() {

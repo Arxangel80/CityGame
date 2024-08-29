@@ -19,21 +19,6 @@ import androidx.lifecycle.LiveData
 import java.nio.charset.Charset
 
 @Composable
-fun NFCQuest(readedMsg: String, tag: Tag?) {
-    var messageToWrite by remember { mutableStateOf("") }
-
+fun NFCQuest(readedMsg: String) {
         Text("Read Message: $readedMsg")
     }
-
-//fun writeNfcTag(tag: Tag?, message: String): Boolean {
-//        val ndefRecord = NdefRecord.createTextRecord(null, message)
-//        val ndefMessage = NdefMessage(arrayOf(ndefRecord))
-//
-//        val ndef = Ndef.get(tag)
-//        ndef.connect()
-//        ndef.writeNdefMessage(ndefMessage)
-//        ndef.close()
-//
-//        return true
-//    }
-//
