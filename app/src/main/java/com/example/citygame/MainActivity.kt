@@ -82,14 +82,18 @@ class MainActivity : ComponentActivity() {
                     QuestsScreen(navigateToMain = { navController.navigate(QuestScreen.Main.name) })
                 }
                 composable(route = QuestScreen.Main.name) {
-                    MainScreen(debugMode,
-                        navigateToGestureQuest = {navController.navigate(QuestScreen.GestureQuest.name)},
-                        navigateToARQuest = {navController.navigate(QuestScreen.ARQuest.name)},
-                        navigateToRLEQuest = {navController.navigate(QuestScreen.RLEQuest.name)},
-                        navigateToCesarQuest = {navController.navigate(QuestScreen.CipherQuest.name)},
-                        navigateToCardanGrilleQuest = {navController.navigate(QuestScreen.CardanGrilleQuest.name)},
-                        navigateToNFCQuest = {navController.navigate(QuestScreen.NFCQuest.name)})
+                    val navigateToMap = mapOf(
+                        "AR Quest" to { navController.navigate(QuestScreen.ARQuest.name) },
+                        "RLE Quest" to { navController.navigate(QuestScreen.RLEQuest.name) },
+                        "Cipher Quest" to { navController.navigate(QuestScreen.CipherQuest.name) },
+                        "Gesture Quest" to { navController.navigate(QuestScreen.GestureQuest.name) },
+                        "Cardan Grille Quest" to { navController.navigate(QuestScreen.CardanGrilleQuest.name) },
+                        "NFC Quest" to { navController.navigate(QuestScreen.NFCQuest.name) }
+                    )
+
+                    MainScreen(debugMode, navigateToMap)
                 }
+
                 composable(route = QuestScreen.ARQuest.name) {
                     ARQuestScreen()
                 }
