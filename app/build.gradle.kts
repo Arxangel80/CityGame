@@ -56,12 +56,15 @@ dependencies {
     val play_services_version= "21.3.0"
     val sceneview_version= "2.1.1"
     val camerax_version = "1.3.3"
-    val opencv_version = "4.5.3.0"
+    val lifecycle_version = "2.8.2"
+
+//    val opencv_version = "4.5.3.0"
 
 //    implementation ("com.quickbirdstudios:opencv:${opencv_version}")
 
-    implementation("com.google.mediapipe:solution-core:latest.release")
-    implementation ("com.google.mediapipe:hands:latest.release")
+//    implementation("com.google.mediapipe:solution-core:latest.release")
+//    implementation ("com.google.mediapipe:hands:0.10.14")
+    implementation("com.google.mediapipe:tasks-vision:latest.release")
 
     implementation("androidx.camera:camera-core:${camerax_version}")
     implementation ("androidx.camera:camera-camera2:${camerax_version}")
@@ -72,7 +75,13 @@ dependencies {
     implementation ("androidx.camera:camera-extensions:${camerax_version}")
 
     implementation("androidx.core:core-ktx:1.13.1")
+    // ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
+    // ViewModel utilities for Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.1")
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.8")
+
 
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation(platform("androidx.compose:compose-bom:2024.05.00"))
@@ -95,5 +104,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:$play_services_version")
 
     implementation("io.github.sceneview:sceneview:$sceneview_version")
+
+    implementation("io.coil-kt:coil-compose:2.7.0") //For AsyncImages
 
 }

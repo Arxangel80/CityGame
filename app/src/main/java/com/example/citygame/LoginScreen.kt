@@ -5,7 +5,9 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -35,6 +37,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.citygame.ui.theme.CityGameTheme
+import androidx.activity.compose.BackHandler
+
 
 enum class LoginScreens {
     logIn,
@@ -43,11 +47,14 @@ enum class LoginScreens {
 }
 @Composable
 fun LoginScreen(onNextButtonClicked: () -> Unit) {
-    var LoginScreensState by remember { mutableStateOf(LoginScreens.logIn) }
+    var loginScreensState by remember { mutableStateOf(LoginScreens.logIn) }
 
-    if (LoginScreensState == LoginScreens.logIn) {
-        LoginDrawer(onNextButtonClicked, {LoginScreensState = LoginScreens.signUp})
-    } else if (LoginScreensState == LoginScreens.signUp) {
+    if (loginScreensState == LoginScreens.logIn) {
+        LoginDrawer(onNextButtonClicked, {loginScreensState = LoginScreens.signUp})
+    } else if (loginScreensState == LoginScreens.signUp) {
+        BackHandler(enabled = loginScreensState != LoginScreens.logIn) {
+            loginScreensState = LoginScreens.logIn
+        }
         RegisterDrawer()
     }
 }
@@ -206,12 +213,14 @@ fun LoginDrawer(onNextButtonClicked: () -> Unit, onSignUpButtonClicked: () -> Un
                     {
                         Text("Let's go!")
                     }
+                    Spacer(modifier = Modifier.padding(6.dp))
                     ClickableText(
                         style = TextStyle(color = Color.White),
                         text = AnnotatedString(stringResource(id = R.string.SignUp))
                     ) {
                         onSignUpButtonClicked()
                     }
+                    Spacer(modifier = Modifier.padding(6.dp))
                     ClickableText(
                         style = TextStyle(color = Color.White),
                         text = AnnotatedString(stringResource(id = R.string.ForgotPassword))

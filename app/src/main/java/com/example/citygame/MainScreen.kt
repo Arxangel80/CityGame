@@ -56,6 +56,7 @@ object Quests {
     val CesarCipherQuest = Quest("Cesar cipher", LatLng(52.404395, 16.955508))
     val GestureQuest = Quest("Gesture quest", LatLng(52.406395, 16.955508))
     val CardanGrilleQuest = Quest("Cardan grille quest", LatLng(52.408395, 16.955508))
+    val NFCQuest = Quest("NFC Quest", LatLng(52.410395, 16.955508))
 }
 @SuppressLint("MissingPermission")
 fun getCurrentLocation(context: Context, onLocationFetched: (location: LatLng) -> Unit) {
@@ -169,13 +170,18 @@ fun BottomPullOutMenu() {
 }
 
 @Composable
-fun MainScreen(debugMode: Boolean, navigateToARQuest: () -> Unit, navigateToRLEQuest: () -> Unit, navigateToCesarQuest: () -> Unit, navigateToGestureQuest: () -> Unit, navigateToCardanGrilleQuest: () -> Unit) {
-    MainDrawer(debugMode, navigateToARQuest, navigateToRLEQuest, navigateToCesarQuest, navigateToGestureQuest, navigateToCardanGrilleQuest)
+fun MainScreen(debugMode: Boolean, navigateToARQuest: () -> Unit, navigateToRLEQuest: () -> Unit, navigateToCesarQuest: () -> Unit,
+               navigateToGestureQuest: () -> Unit,
+               navigateToCardanGrilleQuest: () -> Unit, navigateToNFCQuest: () -> Unit) {
+    MainDrawer(debugMode, navigateToARQuest, navigateToRLEQuest, navigateToCesarQuest, navigateToGestureQuest, navigateToCardanGrilleQuest, navigateToNFCQuest)
 }
 
 @Composable
-fun MainDrawer(debugMode: Boolean, navigateToARQuest: () -> Unit, navigateToRLEQuest: () -> Unit, navigateToCesarQuest: () -> Unit, navigateToGestureQuest: () -> Unit, navigateToCardanGrilleQuest: () -> Unit) {
+fun MainDrawer(debugMode: Boolean, navigateToARQuest: () -> Unit, navigateToRLEQuest: () -> Unit,
+               navigateToCesarQuest: () -> Unit, navigateToGestureQuest: () -> Unit,
+               navigateToCardanGrilleQuest: () -> Unit, navigateToNFCQuest: () -> Unit) {
     var showMap by remember { mutableStateOf(false) }
+    var showMenu by remember { mutableStateOf(false) }
     var location by remember { mutableStateOf(LatLng(0.0, 0.0)) }
     val content = LocalContext.current
 
@@ -218,20 +224,24 @@ fun MainDrawer(debugMode: Boolean, navigateToARQuest: () -> Unit, navigateToRLEQ
                 QuestMarker(Quests.CesarCipherQuest, navigateToCesarQuest)
                 QuestMarker(Quests.GestureQuest, navigateToGestureQuest)
                 QuestMarker(Quests.CardanGrilleQuest, navigateToCardanGrilleQuest)
+                QuestMarker(Quests.NFCQuest, navigateToNFCQuest)
             }
         }
     }
-        BottomPullOutMenu()
+        if (showMenu) {
+            BottomPullOutMenu()
+        }
     }
     if (debugMode) {
         Surface(color = Color.White) {
-            Row {
                 Column {
-                    Text("Current coordinates:" )
+                    Text("Current coordinates:")
                     Text("Longitude: ${location.longitude}")
                     Text("Latitude: ${location.latitude}")
+                    Button(onClick = {showMenu = !showMenu}) {
+                        Text("Show menu")
+                    }
                 }
-            }
         }
     }
 }
