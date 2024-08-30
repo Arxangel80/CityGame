@@ -39,35 +39,49 @@ import kotlin.coroutines.suspendCoroutine
 
 @Composable
 fun CardanGrilleQuest() {
-    val lensFacing = CameraSelector.LENS_FACING_BACK
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val context = LocalContext.current
-    val preview = Preview.Builder().build()
-    val previewView = remember {
-        PreviewView(context)
-    }
+// Import necessary libraries and components
+    val lensFacing = CameraSelector.LENS_FACING_BACK // Set the camera to use the rear-facing camera
+    val lifecycleOwner = LocalLifecycleOwner.current // Get the current lifecycle owner, used to bind the camera lifecycle
+    val context = LocalContext.current // Get the current context, needed for initializing camera and views
+    val preview = Preview.Builder().build() // Create a camera preview instance
+    val previewView = remember { PreviewView(context) } // Remember the PreviewView to display the camera preview
+
+// Variable to track if the grid overlay (grille) is enabled or not
     var isGrilleEnabled by remember { mutableStateOf(true) }
+
+// Build a camera selector to specify which camera lens to use (in this case, the back camera)
     val cameraxSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+
+// LaunchedEffect to bind the camera to the lifecycle when lensFacing changes
     LaunchedEffect(lensFacing) {
-        val cameraProvider = context.getCameraProvider()
-        cameraProvider.unbindAll()
-        cameraProvider.bindToLifecycle(lifecycleOwner, cameraxSelector, preview)
-        preview.setSurfaceProvider(previewView.surfaceProvider)
+        val cameraProvider = context.getCameraProvider() // Get the camera provider for the context
+        cameraProvider.unbindAll() // Unbind any previously bound use cases
+        cameraProvider.bindToLifecycle(lifecycleOwner, cameraxSelector, preview) // Bind the camera to the lifecycle with the specified selector and preview
+        preview.setSurfaceProvider(previewView.surfaceProvider) // Set the surface provider for the preview to display the camera feed in the PreviewView
     }
-    Box(modifier = Modifier.fillMaxSize(), /*verticalArrangement = Arrangement.Bottom,*/
-        contentAlignment = Alignment.BottomCenter,) {
+
+// Box layout to contain the camera preview and the grid overlay, with the button at the bottom center
+    Box(
+        modifier = Modifier.fillMaxSize(), // Make the Box fill the entire available size
+        contentAlignment = Alignment.BottomCenter, // Align the content to the bottom center of the Box
+    ) {
+        // Display the camera preview using AndroidView and fill the entire size of the Box
         AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
+
+        // Conditionally display the grid overlay (grille) on top of the camera preview if enabled
         if (isGrilleEnabled) {
             Image(
-                painter = painterResource(id = R.drawable.grille),
-                contentScale = ContentScale.FillBounds,
-                contentDescription = "",
-                modifier = Modifier.fillMaxSize(),
-                alpha = 0.7f
+                painter = painterResource(id = R.drawable.grille), // Load the grille image resource
+                contentScale = ContentScale.FillBounds, // Scale the image to fill the bounds of the Box
+                contentDescription = "", // No content description needed for the grille
+                modifier = Modifier.fillMaxSize(), // Make the Image fill the entire available size
+                alpha = 0.7f // Set the transparency of the grille overlay
             )
         }
-        Button(onClick = {isGrilleEnabled = !isGrilleEnabled}, modifier = Modifier.padding(10.dp)) {
-            Text(text = "Enable grille")
+
+        // Button to toggle the grid overlay (grille) on and off
+        Button(onClick = { isGrilleEnabled = !isGrilleEnabled }, modifier = Modifier.padding(10.dp)) {
+            Text(text = "Enable grille") // Button text
         }
     }
 }

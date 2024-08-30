@@ -9,15 +9,19 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,10 +35,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.consumePositionChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -45,19 +52,20 @@ import com.google.maps.android.compose.MarkerInfoWindow
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
+
 data class Quest(
     val name: String,
     val coordinates: LatLng
 )
 
 object Quests {
-    val ARQuest = Quest("AR Quest", LatLng(52.400395, 16.955508))
+    val NFCQuest = Quest("NFC Quest", LatLng(52.400395, 16.955508))
     val RLEQuest = Quest("RLE Quest", LatLng(52.402395, 16.955508))
-    val CesarCipherQuest = Quest("Cesar cipher", LatLng(52.404395, 16.955508))
+    val CipherQuest = Quest("Cipher Quest", LatLng(52.404395, 16.955508))
     val GestureQuest = Quest("Gesture quest", LatLng(52.406395, 16.955508))
     val CardanGrilleQuest = Quest("Cardan grille quest", LatLng(52.408395, 16.955508))
-    val NFCQuest = Quest("NFC Quest", LatLng(52.410395, 16.955508))
 }
+
 @SuppressLint("MissingPermission")
 fun getCurrentLocation(context: Context, onLocationFetched: (location: LatLng) -> Unit) {
     var loc: LatLng
@@ -68,12 +76,12 @@ fun getCurrentLocation(context: Context, onLocationFetched: (location: LatLng) -
             if (location != null) {
                 val latitude = location.latitude
                 val longitude = location.longitude
-                loc = LatLng(latitude,longitude)
+                loc = LatLng(latitude, longitude)
                 onLocationFetched(loc)
             }
         }
         .addOnFailureListener { exception: Exception ->
-            Log.d("MAP-EXCEPTION",exception.message.toString())
+            Log.d("MAP-EXCEPTION", exception.message.toString())
         }
 }
 
@@ -87,7 +95,10 @@ fun QuestMarker(quest: Quest, navTo: () -> Unit) {
         onInfoWindowClick = { navTo() },
         content = {
             Surface(shape = RoundedCornerShape(10.dp), color = Color.White) {
-                Column (horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(15.dp)) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(15.dp)
+                ) {
                     Text(text = "${it.title}")
                     Text(text = "${it.snippet}")
                     Button(onClick = { }) {
@@ -98,14 +109,15 @@ fun QuestMarker(quest: Quest, navTo: () -> Unit) {
         }
     )
 }
+
 @Composable
-fun MainScreen(debugMode: Boolean, navigateToMap: Map<String, () -> Unit>) {
-    MainDrawer(debugMode, navigateToMap)
+fun MainScreen(debugMode: Boolean, navToQuestsMap: Map<String, () -> Unit>, navToChat: () -> Unit) {
+    MainDrawer(debugMode, navToQuestsMap, navToChat)
 
 }
 
 @Composable
-fun MainDrawer(debugMode: Boolean, navigateToMap: Map<String, () -> Unit>) {
+fun MainDrawer(debugMode: Boolean, navToQuestsMap: Map<String, () -> Unit>, navToChat: () -> Unit) {
     var showMap by remember { mutableStateOf(false) }
     var location by remember { mutableStateOf(LatLng(0.0, 0.0)) }
     val content = LocalContext.current
@@ -116,98 +128,137 @@ fun MainDrawer(debugMode: Boolean, navigateToMap: Map<String, () -> Unit>) {
         showMap = true
     }
 
-    Box (contentAlignment = Alignment.BottomStart, modifier = Modifier.fillMaxSize()) {
-    if(showMap) {
-        Column {
-            val cameraPositionState = rememberCameraPositionState {
-                position = CameraPosition.fromLatLngZoom(location, 16f)
-            }
-
-            val uiSettings by remember {
-                mutableStateOf(
-                    MapUiSettings(
-                        myLocationButtonEnabled = true,
-                        zoomControlsEnabled = false
-                    )
-                )
-            }
-
-            GoogleMap(cameraPositionState = cameraPositionState,
-                properties = MapProperties(isMyLocationEnabled = true),
-                uiSettings = uiSettings,
-                onMyLocationButtonClick = {
-                    getCurrentLocation(content) {
-                        location = it
-                        showMap = true
-                    }
-                    cameraPositionState.position = CameraPosition.fromLatLngZoom(location, 16f)
-                    true
+    Box(contentAlignment = Alignment.BottomStart, modifier = Modifier.fillMaxSize()) {
+        if (showMap) {
+            Column {
+                val cameraPositionState = rememberCameraPositionState {
+                    position = CameraPosition.fromLatLngZoom(location, 16f)
                 }
-            ) {
-                navigateToMap["AR Quest"]?.let { QuestMarker(Quests.ARQuest, it) }
-                navigateToMap["RLE Quest"]?.let { QuestMarker(Quests.RLEQuest, it) }
-                navigateToMap["Cesar Quest"]?.let { QuestMarker(Quests.CesarCipherQuest, it) }
-                navigateToMap["Gesture Quest"]?.let { QuestMarker(Quests.GestureQuest, it) }
-                navigateToMap["Cardan Grille Quest"]?.let { QuestMarker(Quests.CardanGrilleQuest, it) }
-                navigateToMap["NFC Quest"]?.let { QuestMarker(Quests.NFCQuest, it) }
 
+                val uiSettings by remember {
+                    mutableStateOf(
+                        MapUiSettings(
+                            myLocationButtonEnabled = true,
+                            zoomControlsEnabled = false
+                        )
+                    )
+                }
+
+                GoogleMap(cameraPositionState = cameraPositionState,
+                    properties = MapProperties(isMyLocationEnabled = true),
+                    uiSettings = uiSettings,
+                    onMyLocationButtonClick = {
+                        getCurrentLocation(content) {
+                            location = it
+                            showMap = true
+                        }
+                        cameraPositionState.position = CameraPosition.fromLatLngZoom(location, 16f)
+                        true
+                    }
+                ) {
+                    navToQuestsMap["NFC Quest"]?.let { QuestMarker(Quests.NFCQuest, it) }
+                    navToQuestsMap["RLE Quest"]?.let { QuestMarker(Quests.RLEQuest, it) }
+                    navToQuestsMap["Cipher Quest"]?.let { QuestMarker(Quests.CipherQuest, it) }
+                    navToQuestsMap["Gesture Quest"]?.let { QuestMarker(Quests.GestureQuest, it) }
+                    navToQuestsMap["Cardan Grille Quest"]?.let {
+                        QuestMarker(
+                            Quests.CardanGrilleQuest,
+                            it
+                        )
+                    }
+
+                }
             }
         }
-    }
-        BottomPullOutMenu(navigateToMap)
+        BottomPullOutMenu(navToQuestsMap)
+        ChatButton(navToChat)
+
     }
     if (debugMode) {
         Surface(color = Color.White) {
-                Column {
-                    Text("Current coordinates:")
-                    Text("Longitude: ${location.longitude}")
-                    Text("Latitude: ${location.latitude}")
-                }
+            Column {
+                Text("Current coordinates:")
+                Text("Longitude: ${location.longitude}")
+                Text("Latitude: ${location.latitude}")
+            }
+        }
+    }
+}
+
+@Composable
+fun ChatButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+    ) {
+        Button(
+            onClick = onClick,
+            modifier = modifier.size(64.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.chat),
+                contentDescription = null,
+                tint = Color.Black,
+                modifier = Modifier.size(48.dp)
+            )
         }
     }
 }
 
 @Composable
 fun BottomPullOutMenu(navigateToMap: Map<String, () -> Unit>) {
-    var offsetY by remember { mutableFloatStateOf(110f) }
     var expanded by remember { mutableStateOf(false) }
+    val maxOffsetY = 200F
+    var offsetY by remember { mutableFloatStateOf(maxOffsetY) }
+
     val descriptionsList =
-        arrayOf("AR Quest", "Solve the mystery of visual cypher using the principles of RLE",
-            "Solve the cipher with shifting your geoposition",
-            "Use your device camera to replicate a sequence gestures",
-            "Use Cardan Grille to uncover a secret message in a text",
-            "Find hidden NFC tags and read them with your device")
+        mapOf(
+            "RLE Quest" to "Solve the mystery of visual cypher using the principles of RLE",
+            "Cipher Quest" to "Solve the cipher with shifting your geoposition",
+            "Gesture Quest" to "Use your device camera to replicate a sequence gestures",
+            "Cardan Grille Quest" to "Use Cardan Grille to uncover a secret message in a text",
+            "NFC Quest" to "Find hidden NFC tags and read them with your device"
+        )
 
     Box(
         Modifier
-            .background(Color.Transparent)
-            .alpha(0.8f)
-            .fillMaxWidth(0.75f)
-            .pointerInput(Unit) {
-                detectDragGestures { change, dragAmount ->
-                    offsetY = (offsetY + dragAmount.y).coerceAtMost(110f)
-                    if (offsetY > 0.1f) {
-                        expanded = true
-                    } else {
-                        expanded = false
-                        offsetY = 0.1f
+            .fillMaxWidth(0.75F)
+    ) {
+        Column(
+            Modifier
+                .align(Alignment.BottomCenter)
+                .offset(y = offsetY.dp)
+                .alpha(0.9F)
+                .background(Color.White, shape = RoundedCornerShape(16.dp))
+                .padding(8.dp)
+                .pointerInput(Unit) {
+                    detectDragGestures { change, dragAmount ->
+                        offsetY = (offsetY + dragAmount.y).coerceAtMost(maxOffsetY)
+                        if (offsetY > 0.1f) {
+                            expanded = true
+                        } else {
+                            expanded = false
+                            offsetY = 0.1f
+                        }
+                        change.consumePositionChange()
                     }
-                    change.consumePositionChange()
+                }
+        ) {
+            navigateToMap.forEach { (label, onClick) ->
+                val description = descriptionsList[label]
+                if (description != null) {
+                    NavigationItem(label = label, description = description, onClick = onClick)
                 }
             }
-    ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(navigateToMap.entries.toList()) { (label, onClick) ->
-                val index = descriptionsList.indexOf(label)
-                val description = if (index >= 0) descriptionsList.getOrElse(index + 1) { "" } else ""
-                NavigationItem(label = label, description = description, onClick = onClick)
-            }
-        }
         }
     }
-
+}
 
 
 @Composable
@@ -216,22 +267,28 @@ fun NavigationItem(label: String, description: String, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(vertical = 8.dp),
-        shape = RoundedCornerShape(8.dp),
+            .padding(vertical = 4.dp),
+        shape = RoundedCornerShape(12.dp),
         color = Color.LightGray
     ) {
-        Text(
-            text = label,
-            modifier = Modifier.padding(16.dp),
-            color = Color.Black
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = description,
-            color = Color.DarkGray,
-            style = MaterialTheme.typography.bodyMedium
-        )
+        Column(
+            modifier = Modifier
+                .padding(8.dp),
+        ) {
+            Text(
+                text = label,
+                color = Color.Black,
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            Text(
+                text = description,
+                color = Color.DarkGray,
+                style = MaterialTheme.typography.bodyMedium,
+                lineHeight = 20.sp,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
     }
-
 }
 

@@ -25,16 +25,16 @@ import androidx.compose.runtime.livedata.observeAsState
 
 
 
-enum class QuestScreen() {
+enum class Screens() {
     Login,
     Quests,
     Main,
-    ARQuest,
     RLEQuest,
     CipherQuest,
     GestureQuest,
     CardanGrilleQuest,
-    NFCQuest
+    NFCQuest,
+    Chat
 }
 
 class MainActivity : ComponentActivity() {
@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             DisposableEffect(navController) {
                 val callback = NavController.OnDestinationChangedListener { _, destination, _ ->
-                    if (destination.route == QuestScreen.NFCQuest.name) {
+                    if (destination.route == Screens.NFCQuest.name) {
                         enableNfcForegroundDispatch()
                     } else {
                         disableNfcForegroundDispatch()
@@ -71,45 +71,43 @@ class MainActivity : ComponentActivity() {
             
             NavHost(
                 navController = navController,
-                startDestination = QuestScreen.Main.name
+                startDestination = Screens.Main.name
             ) {
-                composable(route = QuestScreen.Login.name) {
-                    LoginScreen(onNextButtonClicked = {navController.navigate(QuestScreen.Quests.name) {
+                composable(route = Screens.Login.name) {
+                    LoginScreen(onNextButtonClicked = {navController.navigate(Screens.Quests.name) {
                         popUpTo(0) }
                     })
                 }
-                composable(route = QuestScreen.Quests.name) {
-                    QuestsScreen(navigateToMain = { navController.navigate(QuestScreen.Main.name) })
+                composable(route = Screens.Quests.name) {
+                    QuestsScreen(navigateToMain = { navController.navigate(Screens.Main.name) })
                 }
-                composable(route = QuestScreen.Main.name) {
-                    val navigateToMap = mapOf(
-                        "AR Quest" to { navController.navigate(QuestScreen.ARQuest.name) },
-                        "RLE Quest" to { navController.navigate(QuestScreen.RLEQuest.name) },
-                        "Cipher Quest" to { navController.navigate(QuestScreen.CipherQuest.name) },
-                        "Gesture Quest" to { navController.navigate(QuestScreen.GestureQuest.name) },
-                        "Cardan Grille Quest" to { navController.navigate(QuestScreen.CardanGrilleQuest.name) },
-                        "NFC Quest" to { navController.navigate(QuestScreen.NFCQuest.name) }
+                composable(route = Screens.Main.name) {
+                    val navigateToQuestMap = mapOf(
+                        "RLE Quest" to { navController.navigate(Screens.RLEQuest.name) },
+                        "Cipher Quest" to { navController.navigate(Screens.CipherQuest.name) },
+                        "Gesture Quest" to { navController.navigate(Screens.GestureQuest.name) },
+                        "Cardan Grille Quest" to { navController.navigate(Screens.CardanGrilleQuest.name) },
+                        "NFC Quest" to { navController.navigate(Screens.NFCQuest.name) },
                     )
-
-                    MainScreen(debugMode, navigateToMap)
+                    MainScreen(debugMode, navigateToQuestMap, navToChat = { navController.navigate(Screens.Chat.name) })
+                }
+                composable(route = Screens.Chat.name) {
+                    ChatScreen()
                 }
 
-                composable(route = QuestScreen.ARQuest.name) {
-                    ARQuestScreen()
-                }
-                composable(route = QuestScreen.RLEQuest.name) {
+                composable(route = Screens.RLEQuest.name) {
                     RLEQuestScreen(8, 8, debugMode)
                 }
-                composable(route = QuestScreen.CipherQuest.name) {
+                composable(route = Screens.CipherQuest.name) {
                     CipherScreen()
                 }
-                composable(route = QuestScreen.GestureQuest.name) {
+                composable(route = Screens.GestureQuest.name) {
                     GestureQuestScreen()
                 }
-                composable(route = QuestScreen.CardanGrilleQuest.name) {
+                composable(route = Screens.CardanGrilleQuest.name) {
                     CardanGrilleQuest()
                 }
-                composable(route = QuestScreen.NFCQuest.name) {
+                composable(route = Screens.NFCQuest.name) {
                     NFCQuest( readedMsg = readedMsg)
                 }
             }

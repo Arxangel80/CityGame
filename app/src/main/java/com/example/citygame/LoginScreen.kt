@@ -220,14 +220,6 @@ fun LoginDrawer(onNextButtonClicked: () -> Unit, onSignUpButtonClicked: () -> Un
                     ) {
                         onSignUpButtonClicked()
                     }
-                    Spacer(modifier = Modifier.padding(6.dp))
-                    ClickableText(
-                        style = TextStyle(color = Color.White),
-                        text = AnnotatedString(stringResource(id = R.string.ForgotPassword))
-                    ) {
-                        // Действия, выполняемые при нажатии кнопки
-
-                    }
                 }
             }
         }
@@ -241,12 +233,6 @@ fun RegisterDrawer() {
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color.Black) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//        Image(
-//            painter = painterResource(id = R.drawable.loginscreenimage),
-//            contentScale = ContentScale.FillBounds,
-//            contentDescription = stringResource(id = R.string.LoginImageDesc),
-//            modifier = Modifier.fillMaxSize()
-//        )
     Column(
         verticalArrangement = Arrangement.spacedBy(space = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
