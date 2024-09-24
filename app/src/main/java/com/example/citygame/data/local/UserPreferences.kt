@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 object UserPreferences {
@@ -17,9 +18,12 @@ object UserPreferences {
         }
     }
 
-    val accessTokenFlow: (Context) -> Flow<String?> = {
-        it.dataStore.data.map { prefs ->
-            prefs[KEY_ACCESS_TOKEN]
+    suspend fun clear(context: Context) {
+        context.dataStore.edit { prefs ->
+            prefs.clear()
         }
     }
+
+    suspend fun getAccessToken(context: Context): String? =
+        context.dataStore.data.first()[KEY_ACCESS_TOKEN]
 }

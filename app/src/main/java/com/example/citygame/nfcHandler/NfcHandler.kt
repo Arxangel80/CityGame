@@ -33,7 +33,7 @@ class NfcHandler(
 
                 when (currentScreenName) {
                     AppScreens.NFCRaceQuest.NAME -> onRaceTagScanned(text)
-                    AppScreens.CompassScreen.NAME, AppScreens.WinScreen.NAME -> onMainTagScanned(
+                    AppScreens.CompassScreen.NAME, AppScreens.ReturnScreen.NAME -> onMainTagScanned(
                         text
                     )
                 }

@@ -9,6 +9,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewModelScope
+import com.example.citygame.data.NetworkModule
+import com.example.citygame.data.SocketManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -16,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import com.example.citygame.navigation.AppScreens
+import com.example.citygame.utils.Quests
 
 class GestureViewModel(application: Application) : AndroidViewModel(application) {
     private val context = application.applicationContext
@@ -115,6 +118,8 @@ class GestureViewModel(application: Application) : AndroidViewModel(application)
     fun win() {
         viewModelScope.launch {
             _navigationEvent.emit(AppScreens.FinalScreen.NAME)
+
+            SocketManager.emitQuestCompleted(Quests.MainQuest5.miniQuest.name)
         }
     }
 

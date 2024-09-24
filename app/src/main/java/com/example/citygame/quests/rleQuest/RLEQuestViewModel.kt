@@ -60,8 +60,9 @@ class RLEQuestViewModel(
     fun win() {
         onWin(
             nextQuestFinished = { Quests.markMiniQuestFinished(Quests.MainQuest3.miniQuest.name) },
-            navigateTo = AppScreens.WinScreen.NAME,
-            toast = "Вы успешно справились с заданием!"
+            navigateTo = AppScreens.ReturnScreen.NAME,
+            toast = "Вы успешно справились с заданием!",
+            quest = Quests.MainQuest3.miniQuest.name
         )
     }
 }

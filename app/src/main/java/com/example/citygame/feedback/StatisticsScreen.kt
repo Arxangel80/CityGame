@@ -252,13 +252,3 @@ fun QuestTimeRow(quest: String, time: String) {
     }
     Spacer(modifier = Modifier.height(4.dp))
 }
-
-
-@Preview(showBackground = true, name = "Feedback Screen Preview")
-@Composable
-fun FeedbackScreenPreview() {
-    MaterialTheme {
-        StatisticsScreen(
-        )
-    }
-}

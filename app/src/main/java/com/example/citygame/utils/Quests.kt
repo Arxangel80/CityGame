@@ -37,8 +37,8 @@ object Quests {
         description = "Solve the mystery of visual cypher using the principles of RLE"
     )
 
-    private val CipherQuest = MiniQuest(
-        name = "Cipher Quest",
+    private val GeopositionCipherQuest = MiniQuest(
+        name = "GeopositionCipherQuest",
         isFinished = false,
         description = "Solve the cipher with shifting your geoposition"
     )
@@ -52,7 +52,7 @@ object Quests {
     private val ColorFilterQuest = MiniQuest(
         name = "Color Filter Quest",
         isFinished = false,
-        description = "Use your device camera to replicate a sequence gestures"
+        description = "Color Filter Quest"
     )
 
     val MainQuest1 = MainQuest(
@@ -82,9 +82,9 @@ object Quests {
     val MainQuest4 = MainQuest(
         name = "Main quest 4",
         coordinates = LatLng(52.408395, 16.955508),
-        route = AppScreens.CipherQuest.NAME,
+        route = AppScreens.GeopositionCipherQuest.NAME,
         hint = "Cqdvk mxfw",
-        miniQuest = CipherQuest
+        miniQuest = GeopositionCipherQuest
     )
 
     val MainQuest5 = MainQuest(
@@ -95,7 +95,8 @@ object Quests {
         miniQuest = GestureQuest
     )
 
-    val miniQuests = listOf(NFCRaceQuest, RLEQuest, CipherQuest, GestureQuest, ColorFilterQuest)
+    val miniQuests =
+        listOf(NFCRaceQuest, RLEQuest, GeopositionCipherQuest, GestureQuest, ColorFilterQuest)
     val mainQuests = listOf(MainQuest1, MainQuest2, MainQuest3, MainQuest4, MainQuest5)
 
     fun getDescriptionForQuest(questName: String): String? {

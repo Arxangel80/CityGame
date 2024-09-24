@@ -2,6 +2,8 @@ package com.example.citygame.mainQuest
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.citygame.data.NetworkModule
+import com.example.citygame.data.SocketManager
 import com.example.citygame.navigation.AppScreens
 import com.example.citygame.utils.Quests
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -50,6 +52,8 @@ class MainQuestNFCViewModel : ViewModel() {
             } else {
                 viewModelScope.launch {
                     _navigationEvent.emit(AppScreens.HintScreen.route(currentQuest.hint))
+
+                    SocketManager.emitQuestCompleted(currentQuest.name)
                 }
             }
         } else {

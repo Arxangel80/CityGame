@@ -1,4 +1,4 @@
-package com.example.citygame.quests.cipherQuest
+package com.example.citygame.quests.geopositionCipherQuest
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
@@ -15,7 +15,7 @@ import kotlin.math.sqrt
 import kotlin.random.Random
 
 
-class CipherViewModel : BaseQuestViewModel() {
+class GeopositionCipherViewModel : BaseQuestViewModel() {
     private val _messageDecoded = MutableStateFlow(false)
     val messageDecoded: StateFlow<Boolean> = _messageDecoded
 
@@ -118,8 +118,9 @@ class CipherViewModel : BaseQuestViewModel() {
     fun win() {
         onWin(
             nextQuestFinished = { Quests.markMiniQuestFinished(Quests.MainQuest4.miniQuest.name) },
-            navigateTo = AppScreens.WinScreen.NAME,
-            toast = "Вы успешно справились с заданием 4!"
+            navigateTo = AppScreens.ReturnScreen.NAME,
+            toast = "Вы успешно справились с заданием 4!",
+            quest = Quests.MainQuest4.miniQuest.name
         )
     }
 }

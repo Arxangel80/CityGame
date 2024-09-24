@@ -13,7 +13,7 @@ class NFCRaceViewModel : BaseQuestViewModel() {
         _readedMsg.value = msg
     }
 
-    private val checkpoints = listOf("NFC1", "NFC2", "NFC3", "NFC4")
+    val checkpoints = listOf("NFC1", "NFC2", "NFC3", "NFC4")
     private val CHECKPOINT_TIMERS = listOf(
         30,  // Time from NFC1 to NFC2
         45,  // Time from NFC2 to NFC3
@@ -66,8 +66,9 @@ class NFCRaceViewModel : BaseQuestViewModel() {
     fun win() {
         onWin(
             nextQuestFinished = { Quests.markMiniQuestFinished(Quests.MainQuest1.miniQuest.name) },
-            navigateTo = AppScreens.WinScreen.NAME,
-            toast = "Вы успели — вы не лох 😎 \n Идите на следующий квест "
+            navigateTo = AppScreens.ReturnScreen.NAME,
+            toast = "Вы успели — вы не лох 😎 \n Идите на следующий квест ",
+            quest = Quests.MainQuest1.miniQuest.name
         )
     }
 

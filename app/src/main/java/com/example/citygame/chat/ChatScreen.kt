@@ -7,12 +7,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -22,68 +25,53 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.material3.Surface
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-
-@Composable
-fun ChatScreen() {
-    var message by remember { mutableStateOf(TextFieldValue()) }
-    var messages by remember { mutableStateOf(listOf("Hello", "How are you?", "Good, thanks!")) }
-
-
-    ChatDrawer(
-        message = message,
-        onMessageChange = { message = it },
-        messages = messages,
-        onSend = {
-            if (message.text.isNotBlank()) {
-                messages = messages + message.text
-                message = TextFieldValue()
-            }
-        }
-    )
-}
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun ChatDrawer(
-    message: TextFieldValue,
-    onMessageChange: (TextFieldValue) -> Unit,
-    messages: List<String>,
-    onSend: () -> Unit
-) {
-    Surface {
+fun ChatScreen(chatViewModel: ChatViewModel = viewModel()) {
+    val messages = chatViewModel.messages
+    val message = chatViewModel.message
+    val listState = rememberLazyListState()
+
+    Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .padding(16.dp)
-                .background(Color.White),
+                .fillMaxHeight(),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Messages List
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Bottom
+                state = listState,
+                reverseLayout = false
             ) {
                 items(messages) { msg ->
-                    MessageBubble(message = msg)
+                    val isMine = msg.startsWith("Me: ")
+                    MessageBubble(
+                        message = if (isMine) msg.removePrefix("Me: ") else msg,
+                        isMine = isMine
+                    )
                 }
             }
 
-            // Input Row
+            LaunchedEffect(messages.size) {
+                if (messages.isNotEmpty()) {
+                    listState.animateScrollToItem(messages.size - 1)
+                }
+            }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -92,7 +80,7 @@ fun ChatDrawer(
             ) {
                 BasicTextField(
                     value = message,
-                    onValueChange = { onMessageChange(it) },
+                    onValueChange = { chatViewModel.onMessageChange(it) },
                     modifier = Modifier
                         .weight(1f)
                         .background(Color.Gray.copy(alpha = 0.1f), shape = CircleShape)
@@ -103,17 +91,14 @@ fun ChatDrawer(
                         imeAction = ImeAction.Send
                     ),
                     keyboardActions = KeyboardActions(
-                        onSend = {
-                            onSend()
-                        }
+                        onSend = { chatViewModel.sendMessage() }
                     )
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                // Send Button
                 Button(
-                    onClick = onSend,
+                    onClick = { chatViewModel.sendMessage() },
                     shape = CircleShape,
                     modifier = Modifier.size(48.dp),
                     contentPadding = PaddingValues(0.dp)
@@ -131,19 +116,22 @@ fun ChatDrawer(
 }
 
 @Composable
-fun MessageBubble(message: String) {
+fun MessageBubble(message: String, isMine: Boolean) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.Start
+        horizontalArrangement = if (isMine) Arrangement.End else Arrangement.Start
     ) {
         Box(
             modifier = Modifier
-                .background(Color.Gray.copy(alpha = 0.2f), shape = RoundedCornerShape(8.dp))
+                .background(
+                    if (isMine) Color(0xFF0F84FF) else Color.Gray.copy(alpha = 0.2f),
+                    shape = RoundedCornerShape(8.dp)
+                )
                 .padding(12.dp)
         ) {
-            Text(text = message, color = Color.Black)
+            Text(text = message, color = if (isMine) Color.White else Color.Black)
         }
     }
 }

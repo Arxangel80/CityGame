@@ -71,7 +71,6 @@ class CompassViewModel(application: Application) : AndroidViewModel(application)
             SensorManager.SENSOR_DELAY_GAME
         )
 
-        // Получаем магнитное склонение для текущей локации
         _userLocation.value?.let {
             magneticDeclination = GeomagneticField(
                 it.latitude.toFloat(),
@@ -101,7 +100,7 @@ class CompassViewModel(application: Application) : AndroidViewModel(application)
         val user = _userLocation.value ?: return
         val target = _targetLocation.value
 
-        val bearing = user.bearingTo(target) // Встроенный метод Location
+        val bearing = user.bearingTo(target)
         _bearing.floatValue = (bearing + 360) % 360
     }
 
@@ -115,7 +114,6 @@ class CompassViewModel(application: Application) : AndroidViewModel(application)
                 val orientation = FloatArray(3)
                 SensorManager.getOrientation(rotationMatrix, orientation)
 
-                // Учитываем магнитное склонение
                 val azimuthDegrees =
                     Math.toDegrees(orientation[0].toDouble()).toFloat() + magneticDeclination
                 _azimuth.floatValue = (azimuthDegrees + 360) % 360

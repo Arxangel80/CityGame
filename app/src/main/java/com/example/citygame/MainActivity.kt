@@ -15,6 +15,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.auth0.android.jwt.JWT
+import com.example.citygame.data.NetworkModule
+import com.example.citygame.data.SocketManager
+import com.example.citygame.data.local.UserPreferences
 import com.example.citygame.utils.PermissionsHelper
 import com.example.citygame.locationManager.LocationManager
 import com.example.citygame.mainQuest.MainQuestNFCViewModel
@@ -23,6 +27,8 @@ import com.example.citygame.notification.NotificationUtils
 import com.example.citygame.nfcHandler.NfcHandler
 import com.example.citygame.navigation.AppNavGraph
 import com.example.citygame.navigation.AppScreens
+import com.example.citygame.navigation.AppScreens.routeForQuest
+import kotlinx.coroutines.runBlocking
 
 
 class MainActivity : ComponentActivity() {
@@ -39,10 +45,46 @@ class MainActivity : ComponentActivity() {
         // Request for all permisionss
         PermissionsHelper.requestAllImportantPermissions(this)
 
-        // Get intent from console to start app from specific destination
-        val startDestination =
-            intent.getStringExtra("startDestination") // Only for Debug purposes
-                ?: AppScreens.Login.NAME
+        var startDestination = AppScreens.Login.NAME
+
+        // Load token from storage
+        val token = runBlocking { UserPreferences.getAccessToken(this@MainActivity) }
+        token?.let {
+            val jwt = JWT(it)
+
+            if (!jwt.isExpired(10)) {
+                NetworkModule.setToken(it)
+                startDestination = AppScreens.SessionCreationScreen.NAME
+            }
+        }
+
+        runBlocking {
+            try {
+                val response = NetworkModule.apiService.getCurrentSession()
+                if (response.isSuccessful) {
+                    response.body()?.let { sessionData ->
+                        val sessionActive = sessionData.session_active
+                        val questName = sessionData.quest_name
+
+                        if (sessionActive) {
+                            startDestination = routeForQuest(questName!!)
+                        }
+
+                        SocketManager.connect()
+                    }
+                } else {
+                    Log.e("MainActivity", "Server error: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Network error fetching session: ${e.message}")
+            }
+        }
+
+        // Get intent from console to start app from specific destination !DEBUG ONLY!
+        val consoleIntent = intent.getStringExtra("startDestination")
+        if (!consoleIntent.isNullOrEmpty()) {
+            startDestination = consoleIntent
+        }
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
         nfcHandler = NfcHandler(
@@ -61,7 +103,7 @@ class MainActivity : ComponentActivity() {
         // Track is player inside the playing zone
         locationViewModel.isOutsideZone.observe(this) { isOutside ->
             if (isOutside) {
-                NotificationUtils.showLocationNotification(this, "You are out of zone!")
+                NotificationUtils.showLocationNotification(this, "You are out of playing zone!")
             } else {
                 Log.d("LocationViewModel", "You are inside the zone")
             }
@@ -80,7 +122,7 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(currentScreenName) {
                 nfcHandler.updateCurrentRoute(currentScreenName)
 
-                if (currentScreenName == AppScreens.NFCRaceQuest.NAME || currentScreenName == AppScreens.CompassScreen.NAME || currentScreenName == AppScreens.WinScreen.NAME) {
+                if (currentScreenName == AppScreens.NFCRaceQuest.NAME || currentScreenName == AppScreens.CompassScreen.NAME || currentScreenName == AppScreens.ReturnScreen.NAME) {
                     nfcHandler.enableForegroundDispatch()
                 } else {
                     nfcHandler.disableForegroundDispatch()

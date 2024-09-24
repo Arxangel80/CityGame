@@ -1,18 +1,24 @@
-package com.example.citygame.SessionScreens
+package com.example.citygame.sessionScreens
 
 import android.app.Application
-import android.util.Log.e
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.citygame.R
-import com.example.citygame.data.NetworkModule.apiService
-import com.example.citygame.data.NetworkModule.connectSocket
+import com.example.citygame.data.NetworkModule
+import com.example.citygame.data.SocketManager
 import com.example.citygame.data.remote.CreateSessionRequest
+import com.example.citygame.navigation.AppScreens.routeForQuest
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import java.io.IOException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 
 class SessionCreationViewModel(
@@ -22,6 +28,9 @@ class SessionCreationViewModel(
     val items = mutableStateListOf<GridItem>()
     private val _toastMessage = mutableStateOf<String?>(null)
     val toastMessage: State<String?> = _toastMessage
+
+    private val _navigationEvent = MutableSharedFlow<String>()
+    val navigationEvent: SharedFlow<String> = _navigationEvent
 
     init {
         loadGridItems()
@@ -55,10 +64,10 @@ class SessionCreationViewModel(
     fun createSession(onSuccess: () -> Unit) {
         viewModelScope.launch {
             try {
-                val response = apiService.createSession(CreateSessionRequest())
+                val response = NetworkModule.apiService.createSession(CreateSessionRequest())
                 if (response.isSuccessful) {
                     _toastMessage.value = "Session created!"
-                    connectSocket()
+                    SocketManager.connect()
                     onSuccess()
                 } else {
                     val errorJson = response.errorBody()?.string()
@@ -67,8 +76,35 @@ class SessionCreationViewModel(
                     } catch (e: Exception) {
                         "Error: ${response.code()}"
                     }
-                    _toastMessage.value = errorMessage
+
+                    if (errorMessage == "You already have an active session") {
+                        try {
+                            val currentSession = NetworkModule.apiService.getCurrentSession()
+                            if (currentSession.isSuccessful) {
+                                currentSession.body()?.let { sessionData ->
+                                    val questName = sessionData.quest_name
+                                    _navigationEvent.emit(routeForQuest(questName!!))
+                                    SocketManager.connect()
+                                }
+                            } else {
+                                Log.e("MainActivity", "Server error: ${currentSession.code()}")
+                            }
+                        } catch (e: Exception) {
+                            Log.e("MainActivity", "Network error fetching session: ${e.message}")
+                        }
+                    } else {
+                        _toastMessage.value = errorMessage
+                    }
                 }
+            } catch (e: UnknownHostException) {
+                _toastMessage.value = "Нет подключения к интернету"
+                onSuccess()
+            } catch (e: SocketTimeoutException) {
+                _toastMessage.value = "Server does not respond"
+                onSuccess()
+            } catch (e: IOException) {
+                _toastMessage.value = "Ошибка сети: ${e.message}"
+                onSuccess()
             } catch (e: Exception) {
                 _toastMessage.value = "Network error: ${e.message}"
             }

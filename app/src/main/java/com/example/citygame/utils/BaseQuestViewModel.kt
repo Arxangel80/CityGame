@@ -2,6 +2,8 @@ package com.example.citygame.utils
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.citygame.data.NetworkModule
+import com.example.citygame.data.SocketManager
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -16,12 +18,15 @@ abstract class BaseQuestViewModel : ViewModel() {
     open fun onWin(
         nextQuestFinished: (suspend () -> Unit)? = null,
         navigateTo: String? = null,
-        toast: String? = null
+        toast: String? = null,
+        quest: String
     ) {
         viewModelScope.launch {
             toast?.let { _toastEvent.emit(it) }
             nextQuestFinished?.invoke()
             navigateTo?.let { _navigationEvent.emit(it) }
+
+            SocketManager.emitQuestCompleted(quest)
         }
     }
 

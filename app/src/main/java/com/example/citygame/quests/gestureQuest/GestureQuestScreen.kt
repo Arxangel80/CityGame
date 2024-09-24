@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -31,7 +32,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.citygame.BuildConfig
 import com.example.citygame.GestureViewModel
-import com.example.citygame.utils.QuestScreenWrapper
+import com.example.citygame.utils.AppTopBar
 
 @Composable
 fun GestureQuestScreen(
@@ -61,42 +62,51 @@ fun GestureQuestScreen(
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black),
-        contentAlignment = Alignment.BottomCenter
-    ) {
-        AndroidView(
-            factory = { previewView },
-            modifier = Modifier.fillMaxSize()
-        )
-
-        Column(
+    Scaffold(
+        topBar = {
+            AppTopBar(
+                navController
+            )
+        }
+    ) { innerPadding ->
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0x66000000))
-                .padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(Color.Black),
+            contentAlignment = Alignment.BottomCenter
         ) {
-            Text(
-                "Recognized gesture: $recognizedGesture",
-                color = Color.White,
-                style = MaterialTheme.typography.bodyMedium
+            AndroidView(
+                factory = { previewView },
+                modifier = Modifier.fillMaxSize()
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                "Recognized gestures: $recognizedGestures",
-                color = Color.White,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            if (BuildConfig.DEBUG) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(
-                    onClick = { viewModel.win() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
-                ) {
-                    Text("Next", color = Color.Black)
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0x66000000))
+                    .padding(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    "Recognized gesture: $recognizedGesture",
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    "Recognized gestures: $recognizedGestures",
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                if (BuildConfig.DEBUG) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = { viewModel.win() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                    ) {
+                        Text("Next", color = Color.Black)
+                    }
                 }
             }
         }

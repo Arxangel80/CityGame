@@ -32,10 +32,11 @@ fun RLEQuestScreen(
 ) {
     val viewModel: RLEQuestViewModel = viewModel()
 
-    QuestScreenWrapper(viewModel, navController) {
+    QuestScreenWrapper(viewModel, navController) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(innerPadding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -59,7 +60,7 @@ fun RLEQuestScreen(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Прогресс: ${viewModel.currentPatternIndex} / 3")
+                Text("Progress: ${viewModel.currentPatternIndex} / 3")
                 LinearProgressIndicator(
                     progress = viewModel.currentPatternIndex / 3f,
                     modifier = Modifier

@@ -1,8 +1,17 @@
 import android.location.Location
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -15,7 +24,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.citygame.BuildConfig
 import com.example.citygame.compassScreen.CompassViewModel
+import com.example.citygame.utils.AppTopBar
+import com.example.citygame.utils.Quests
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -23,7 +36,8 @@ import kotlin.math.sin
 fun CompassScreen(
     targetLatitude: Double,
     targetLongitude: Double,
-    viewModel: CompassViewModel = viewModel()
+    viewModel: CompassViewModel = viewModel(),
+    navController: NavController
 ) {
     val azimuth by viewModel.azimuth
     val bearing by viewModel.bearing
@@ -34,32 +48,51 @@ fun CompassScreen(
         viewModel.setTarget(targetLatitude, targetLongitude)
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        if (!isSensorsAvailable) {
-            Text(
-                text = "Датчик компаса не найден",
-                color = Color.Red,
-                modifier = Modifier.align(Alignment.Center)
+    Scaffold(
+        topBar = {
+            AppTopBar(
+                navController = navController
             )
-        } else {
-            // Вычисляем угол для стрелки (учитываем, что 0° - это север)
-            val arrowAngle = bearing - azimuth
+        }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(32.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            if (!isSensorsAvailable) {
+                Text(
+                    text = "Compass sensor not found",
+                    color = Color.Red,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            } else {
+                val arrowAngle = bearing - azimuth
 
-            CompassDisplay(arrowAngle, azimuth, bearing)
+                CompassDisplay(arrowAngle, azimuth, bearing)
 
-            LocationInfo(
-                userLocation = userLocation,
-                targetLatitude = targetLatitude.toDouble(),
-                targetLongitude = targetLongitude.toDouble(),
-                azimuth = azimuth,
-                bearing = bearing,
-                modifier = Modifier.align(Alignment.BottomCenter)
-            )
+                LocationInfo(
+                    userLocation = userLocation,
+                    targetLatitude = targetLatitude.toDouble(),
+                    targetLongitude = targetLongitude.toDouble(),
+                    azimuth = azimuth,
+                    bearing = bearing,
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                )
+
+                if (BuildConfig.DEBUG) {
+                    Button(
+                        onClick = {
+                            val curMainQuest = Quests.mainQuests[Quests.currentMainQuestIndex]
+
+                            navController.navigate(curMainQuest.route)
+                        }) {
+                        Text("Next")
+                    }
+                }
+            }
         }
     }
 }

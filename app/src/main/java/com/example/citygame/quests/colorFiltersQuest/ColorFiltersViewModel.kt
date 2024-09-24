@@ -114,8 +114,9 @@ class ColorFiltersViewModel : BaseQuestViewModel() {
     fun win() {
         onWin(
             nextQuestFinished = { Quests.markMiniQuestFinished(Quests.MainQuest2.miniQuest.name) },
-            navigateTo = AppScreens.WinScreen.NAME,
-            toast = "Вы правильно решили квест! 🎉"
+            navigateTo = AppScreens.ReturnScreen.NAME,
+            toast = "Вы правильно решили квест! 🎉",
+            quest = Quests.MainQuest2.miniQuest.name
         )
     }
 

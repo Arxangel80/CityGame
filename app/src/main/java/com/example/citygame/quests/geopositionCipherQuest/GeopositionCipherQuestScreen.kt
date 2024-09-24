@@ -1,4 +1,4 @@
-package com.example.citygame.quests.cipherQuest
+package com.example.citygame.quests.geopositionCipherQuest
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,12 +22,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.citygame.BuildConfig
 import com.example.citygame.utils.QuestScreenWrapper
 import com.google.android.gms.maps.model.LatLng
 
 @Composable
-fun CipherScreen(navController: NavController) {
-    val viewModel: CipherViewModel = viewModel()
+fun GeopositionCipherScreen(navController: NavController) {
+    val viewModel: GeopositionCipherViewModel = viewModel()
     val cipherText by viewModel.cipherText.collectAsState()
     val location by viewModel.location.collectAsState()
     val distance by viewModel.distance.collectAsState()
@@ -106,7 +107,7 @@ fun CipherDrawer(
                 textAlign = TextAlign.Center
             )
 
-            if (messageDecoded) {
+            if (messageDecoded || BuildConfig.DEBUG) {
                 Button(
                     onClick = onContinueClicked,
                     modifier = Modifier

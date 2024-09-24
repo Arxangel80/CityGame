@@ -34,16 +34,22 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.citygame.R
 
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.Checkbox
+import androidx.navigation.NavController
+
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
-    onSignupClicked: () -> Unit
+    onSignupClicked: () -> Unit,
+    navController: NavController
 ) {
     val viewModel: LoginViewModel = viewModel()
     val context = LocalContext.current
 
     val uiState by viewModel.uiState.collectAsState()
     val loginCreds by viewModel.loginCredentials.collectAsState()
+    val rememberMe by viewModel.rememberMe.collectAsState() // новое состояние
 
     LaunchedEffect(uiState) {
         when (val currentState = uiState) {
@@ -59,6 +65,14 @@ fun LoginScreen(
             }
 
             else -> {}
+        }
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.navigationEvent.collect { route ->
+            navController.navigate(route) {
+                popUpTo(route) { inclusive = true }
+            }
         }
     }
 
@@ -92,7 +106,6 @@ fun LoginScreen(
                     textAlign = TextAlign.Center
                 )
 
-                // Login field
                 OutlinedTextField(
                     value = loginCreds.login,
                     onValueChange = { viewModel.updateLoginUsername(it) },
@@ -102,7 +115,6 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Password Field
                 OutlinedTextField(
                     value = loginCreds.pwd,
                     onValueChange = { viewModel.updateLoginPassword(it) },
@@ -115,6 +127,22 @@ fun LoginScreen(
                         if (isButtonEnabled) viewModel.login(onLoginSuccess)
                     })
                 )
+
+                // Remember Me checkbox
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Checkbox(
+                        checked = rememberMe,
+                        onCheckedChange = { viewModel.updateRememberMe(it) },
+                        enabled = isFormEnabled
+                    )
+                    Text(
+                        text = "Remember me",
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
 
                 Button(
                     onClick = { viewModel.login(onLoginSuccess) },

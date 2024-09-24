@@ -1,16 +1,19 @@
 package com.example.citygame.utils
 
 import android.widget.Toast
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
+import com.example.citygame.navigation.AppScreens
 
 @Composable
 fun QuestScreenWrapper(
     viewModel: BaseQuestViewModel,
     navController: NavController,
-    content: @Composable () -> Unit
+    content: @Composable (PaddingValues) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -30,5 +33,13 @@ fun QuestScreenWrapper(
         }
     }
 
-    content()
+    Scaffold(
+        topBar = {
+            AppTopBar(
+                navController
+            )
+        }
+    ) { innerPadding ->
+        content(innerPadding)
+    }
 }
