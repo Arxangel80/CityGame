@@ -53,26 +53,19 @@ android {
 dependencies {
     val nav_version = "2.7.7"
     val maps_compose_version = "4.3.3"
-    val play_services_version= "21.3.0"
-    val sceneview_version= "2.1.1"
+    val play_services_version = "21.3.0"
+    val sceneview_version = "2.1.1"
     val camerax_version = "1.3.3"
     val lifecycle_version = "2.8.2"
-
-//    val opencv_version = "4.5.3.0"
-
-//    implementation ("com.quickbirdstudios:opencv:${opencv_version}")
-
-//    implementation("com.google.mediapipe:solution-core:latest.release")
-//    implementation ("com.google.mediapipe:hands:0.10.14")
     implementation("com.google.mediapipe:tasks-vision:latest.release")
 
     implementation("androidx.camera:camera-core:${camerax_version}")
-    implementation ("androidx.camera:camera-camera2:${camerax_version}")
-    implementation ("androidx.camera:camera-lifecycle:${camerax_version}")
-    implementation ("androidx.camera:camera-video:${camerax_version}")
+    implementation("androidx.camera:camera-camera2:${camerax_version}")
+    implementation("androidx.camera:camera-lifecycle:${camerax_version}")
+    implementation("androidx.camera:camera-video:${camerax_version}")
 
-    implementation ("androidx.camera:camera-view:${camerax_version}")
-    implementation ("androidx.camera:camera-extensions:${camerax_version}")
+    implementation("androidx.camera:camera-view:${camerax_version}")
+    implementation("androidx.camera:camera-extensions:${camerax_version}")
 
     implementation("androidx.core:core-ktx:1.13.1")
     // ViewModel

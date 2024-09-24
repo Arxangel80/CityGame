@@ -3,8 +3,12 @@ package com.example.citygame
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import android.widget.Space
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,9 +16,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -50,8 +56,8 @@ fun CipherScreen() {
             val longitudeCurrent = location.longitude
 
 
-            val x = (latitudeCurrent - latitudeDest)*111320
-            val y = (longitudeCurrent - longitudeDest)*111320
+            val x = (latitudeCurrent - latitudeDest) * 111320
+            val y = (longitudeCurrent - longitudeDest) * 111320
 
             distance = sqrt(x * x + y * y)
         }
@@ -65,19 +71,30 @@ fun CipherScreen() {
 fun CipherDrawer(text: String, location: LatLng, distance: Double) {
     Column(verticalArrangement = Arrangement.Center) {
         Text(
-            text = "Cipher: " + text,
+            modifier = Modifier.fillMaxWidth(),
+            text = "Cipher: $text",
+            fontSize = 30.sp,
+            color = Color.Black,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = "Latitude: " + location.latitude.toString(),
             fontSize = 30.sp,
             color = Color.Black,
             textAlign = TextAlign.Center
         )
         Text(
-            text = "Location" + location.toString(),
+            modifier = Modifier.fillMaxWidth(),
+            text = "Longitude: " + location.longitude.toString(),
             fontSize = 30.sp,
             color = Color.Black,
             textAlign = TextAlign.Center
         )
         Text(
-            text = "Distance: " + distance.toString(),
+            modifier = Modifier.fillMaxWidth(),
+            text = "Distance: $distance",
             fontSize = 30.sp,
             color = Color.Black,
             textAlign = TextAlign.Center
@@ -148,7 +165,8 @@ fun encryptTextBasedOnDistance(
     // Calculate the Euclidean distance between the current and destination coordinates
     val distance = sqrt(x * x + y * y)
 
-    val max_distance = 600 // Define a maximum distance beyond which the entire text will be encrypted
+    val max_distance =
+        600 // Define a maximum distance beyond which the entire text will be encrypted
     if (distance <= DecryptionDistance) return text // If the current distance is within the decryption distance, return the original text
     else if (distance >= max_distance) return randomCharForType(text) // If the current distance is beyond the maximum distance, fully encrypt the text
 

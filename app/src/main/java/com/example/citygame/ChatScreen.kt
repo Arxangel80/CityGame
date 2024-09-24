@@ -40,6 +40,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.Surface
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -48,6 +49,7 @@ import androidx.compose.ui.unit.sp
 fun ChatScreen() {
     var message by remember { mutableStateOf(TextFieldValue()) }
     var messages by remember { mutableStateOf(listOf("Hello", "How are you?", "Good, thanks!")) }
+
 
     ChatDrawer(
         message = message,
@@ -69,64 +71,65 @@ fun ChatDrawer(
     messages: List<String>,
     onSend: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .background(Color.White),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        // Messages List
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.Bottom
-        ) {
-            items(messages) { msg ->
-                MessageBubble(message = msg)
-            }
-        }
-
-        // Input Row
-        Row(
+    Surface {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(16.dp)
+                .background(Color.White),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            BasicTextField(
-                value = message,
-                onValueChange = { onMessageChange(it) },
-                modifier = Modifier
-                    .weight(1f)
-                    .background(Color.Gray.copy(alpha = 0.1f), shape = CircleShape)
-                    .padding(16.dp),
-                textStyle = TextStyle(fontSize = 16.sp),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Send
-                ),
-                keyboardActions = KeyboardActions(
-                    onSend = {
-                        onSend()
-                    }
-                )
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            // Send Button
-            Button(
-                onClick = onSend,
-                shape = CircleShape,
-                modifier = Modifier.size(48.dp),
-                contentPadding = PaddingValues(0.dp)
+            // Messages List
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Bottom
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send,
-                    contentDescription = "Send",
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
+                items(messages) { msg ->
+                    MessageBubble(message = msg)
+                }
+            }
+
+            // Input Row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                BasicTextField(
+                    value = message,
+                    onValueChange = { onMessageChange(it) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(Color.Gray.copy(alpha = 0.1f), shape = CircleShape)
+                        .padding(16.dp),
+                    textStyle = TextStyle(fontSize = 16.sp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Send
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onSend = {
+                            onSend()
+                        }
+                    )
                 )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // Send Button
+                Button(
+                    onClick = onSend,
+                    shape = CircleShape,
+                    modifier = Modifier.size(48.dp),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Send,
+                        contentDescription = "Send",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
         }
     }

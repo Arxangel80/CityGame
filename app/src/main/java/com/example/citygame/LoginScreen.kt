@@ -43,14 +43,14 @@ import androidx.activity.compose.BackHandler
 enum class LoginScreens {
     logIn,
     signUp,
-    forgotPassword
 }
+
 @Composable
 fun LoginScreen(onNextButtonClicked: () -> Unit) {
     var loginScreensState by remember { mutableStateOf(LoginScreens.logIn) }
 
     if (loginScreensState == LoginScreens.logIn) {
-        LoginDrawer(onNextButtonClicked, {loginScreensState = LoginScreens.signUp})
+        LoginDrawer(onNextButtonClicked, { loginScreensState = LoginScreens.signUp })
     } else if (loginScreensState == LoginScreens.signUp) {
         BackHandler(enabled = loginScreensState != LoginScreens.logIn) {
             loginScreensState = LoginScreens.logIn
@@ -58,6 +58,7 @@ fun LoginScreen(onNextButtonClicked: () -> Unit) {
         RegisterDrawer()
     }
 }
+
 data class LoginCredentials(
     var login: String = "",
     var pwd: String = ""
@@ -77,7 +78,7 @@ data class RegisterCredentials(
     }
 }
 
-fun checkCredentials(creds: LoginCredentials, context: Context): Boolean{
+fun checkCredentials(creds: LoginCredentials, context: Context): Boolean {
     return if (creds.isNotEmpty()) {
         true
     } else {
@@ -91,41 +92,27 @@ fun checkCredentials(creds: LoginCredentials, context: Context): Boolean{
 fun TransparentTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    placeholder: @Composable (() -> Unit)?)
-{
+    placeholder: @Composable (() -> Unit)?
+) {
     TextField(
         value = value,
         placeholder = placeholder,
         onValueChange = onValueChange,
-        colors = TextFieldDefaults.colors(unfocusedContainerColor = Color.Transparent, unfocusedTextColor = Color.White)
+        colors = TextFieldDefaults.colors(
+            unfocusedContainerColor = Color.Transparent,
+            unfocusedTextColor = Color.Unspecified
+        )
     )
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransparentPasswordField(
     password: String,
     onProceed: () -> Unit,
     onValueChange: (String) -> Unit,
-    placeholder: @Composable (() -> Unit)?) {
-
-//    var isPasswordVisible by remember { mutableStateOf(false) }
-
-////    val leadingIcon = @Composable {
-////        Icon(
-//////            Icons.Default.Key,
-////            contentDescription = "",
-////            tint = MaterialTheme.colorScheme.primary
-////        )
-////    }
-////    val trailingIcon = @Composable {
-////        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-////            Icon(
-////                if (isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-////                contentDescription = "",
-//////                tint = MaterialTheme.colorScheme.primary
-////        }
-//    }
-
+    placeholder: @Composable (() -> Unit)?
+) {
     TextField(
         value = password,
         placeholder = placeholder,
@@ -137,17 +124,18 @@ fun TransparentPasswordField(
         keyboardActions = KeyboardActions(
             onDone = { onProceed() }
         ),
-        colors = TextFieldDefaults.colors(unfocusedContainerColor = Color.Transparent,
-            unfocusedTextColor = Color.White),
+        colors = TextFieldDefaults.colors(
+            unfocusedContainerColor = Color.Transparent,
+            unfocusedTextColor = Color.Unspecified
+        ),
     )
 }
 
-fun submit(credentials:LoginCredentials, context:Context, proceed: () -> Unit) {
+fun submit(credentials: LoginCredentials, context: Context, proceed: () -> Unit) {
     if (!checkCredentials(credentials, context)) {
         credentials.login = ""
         credentials.pwd = ""
-    }
-    else {
+    } else {
         proceed()
     }
 }
@@ -159,14 +147,8 @@ fun LoginDrawer(onNextButtonClicked: () -> Unit, onSignUpButtonClicked: () -> Un
     var isButtonEnabled by remember { mutableStateOf(credentials.isNotEmpty()) }
 
     CityGameTheme {
-        Surface(modifier = Modifier.fillMaxSize(), color = Color.Black) {
+        Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//                Image(
-//                    painter = painterResource(id = R.drawable.loginscreenimage),
-//                    contentScale = ContentScale.FillBounds,
-//                    contentDescription = "",
-//                    modifier = Modifier.fillMaxSize()
-//                )
                 Column(
                     verticalArrangement = Arrangement.spacedBy(space = 10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -174,7 +156,6 @@ fun LoginDrawer(onNextButtonClicked: () -> Unit, onSignUpButtonClicked: () -> Un
                     Text(
                         text = "Welcome to the Quest",
                         fontSize = 30.sp,
-                        color = Color.White,
                         textAlign = TextAlign.Center
                     )
                     TransparentTextField(
@@ -186,7 +167,6 @@ fun LoginDrawer(onNextButtonClicked: () -> Unit, onSignUpButtonClicked: () -> Un
                         placeholder = {
                             Text(
                                 "Login",
-                                color = Color.White,
                                 fontFamily = FontFamily.SansSerif
                             )
                         }
@@ -200,7 +180,6 @@ fun LoginDrawer(onNextButtonClicked: () -> Unit, onSignUpButtonClicked: () -> Un
                         placeholder = {
                             Text(
                                 "Password",
-                                color = Color.White,
                                 fontFamily = FontFamily.SansSerif
                             )
                         },
@@ -208,14 +187,14 @@ fun LoginDrawer(onNextButtonClicked: () -> Unit, onSignUpButtonClicked: () -> Un
                     Button(
                         onClick = { submit(credentials, context, onNextButtonClicked) },
                         enabled = isButtonEnabled,
-                        colors = ButtonDefaults.buttonColors(containerColor = if (isButtonEnabled) Color.Cyan else Color.Gray)
+                        colors = ButtonDefaults.buttonColors(containerColor = if (isButtonEnabled) Color.Unspecified else Color.DarkGray)
                     )
                     {
                         Text("Let's go!")
                     }
                     Spacer(modifier = Modifier.padding(6.dp))
                     ClickableText(
-                        style = TextStyle(color = Color.White),
+                        style = TextStyle(),
                         text = AnnotatedString(stringResource(id = R.string.SignUp))
                     ) {
                         onSignUpButtonClicked()
@@ -231,79 +210,85 @@ fun RegisterDrawer() {
     var credentials by remember { mutableStateOf(RegisterCredentials()) }
     var isButtonEnabled by remember { mutableStateOf(credentials.isNotEmpty()) }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = Color.Black) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(space = 10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Sign up",
-            fontSize = 30.sp,
-            color = Color.White,
-            textAlign = TextAlign.Center
-        )
-        TransparentTextField(
-            value = credentials.login,
-            onValueChange = { data ->
-                credentials = credentials.copy(login = data)
-                isButtonEnabled = credentials.isNotEmpty()
-            },
-            placeholder = { Text("Login", color = Color.White, fontFamily = FontFamily.SansSerif) }
-        )
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(space = 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Sign up",
+                    fontSize = 30.sp,
+                    textAlign = TextAlign.Center
+                )
+                TransparentTextField(
+                    value = credentials.login,
+                    onValueChange = { data ->
+                        credentials = credentials.copy(login = data)
+                        isButtonEnabled = credentials.isNotEmpty()
+                    },
+                    placeholder = {
+                        Text(
+                            "Login",
+                            fontFamily = FontFamily.SansSerif
+                        )
+                    }
+                )
 
-        TransparentTextField(
-            value = credentials.email,
-            onValueChange = { data ->
-                credentials = credentials.copy(email = data)
-                isButtonEnabled = credentials.isNotEmpty()
-            },
-            placeholder = { Text("Email", color = Color.White, fontFamily = FontFamily.SansSerif) }
-        )
-        TransparentPasswordField(
-            password = credentials.pwd,
-            onValueChange = { data ->
-                credentials = credentials.copy(pwd = data)
-                isButtonEnabled = credentials.isNotEmpty()
-            },
-            onProceed = {//TODO
-            },
-            placeholder = { Text("Password", color = Color.White, fontFamily = FontFamily.SansSerif) }
-        )
-        TransparentPasswordField(
-            //TODO
-            password = credentials.pwd,
-            onValueChange = { data ->
-                credentials = credentials.copy(pwd = data)
-                isButtonEnabled = credentials.isNotEmpty()
-            },
-            onProceed = {//TODO
-                        },
-            placeholder = { Text("Repeat password", color = Color.White, fontFamily = FontFamily.SansSerif) }
-        )
-        Button(onClick = {//Todo
-             },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isButtonEnabled) Color.Cyan else Color.Gray)) {
-            Text("Let's go to the Quest!")
+                TransparentTextField(
+                    value = credentials.email,
+                    onValueChange = { data ->
+                        credentials = credentials.copy(email = data)
+                        isButtonEnabled = credentials.isNotEmpty()
+                    },
+                    placeholder = {
+                        Text(
+                            "Email",
+                            fontFamily = FontFamily.SansSerif
+                        )
+                    }
+                )
+                TransparentPasswordField(
+                    password = credentials.pwd,
+                    onValueChange = { data ->
+                        credentials = credentials.copy(pwd = data)
+                        isButtonEnabled = credentials.isNotEmpty()
+                    },
+                    onProceed = {//TODO
+                    },
+                    placeholder = {
+                        Text(
+                            "Password",
+                            fontFamily = FontFamily.SansSerif
+                        )
+                    }
+                )
+                TransparentPasswordField(
+                    //TODO
+                    password = credentials.pwd,
+                    onValueChange = { data ->
+                        credentials = credentials.copy(pwd = data)
+                        isButtonEnabled = credentials.isNotEmpty()
+                    },
+                    onProceed = {//TODO
+                    },
+                    placeholder = {
+                        Text(
+                            "Repeat password",
+                            fontFamily = FontFamily.SansSerif
+                        )
+                    }
+                )
+                Button(
+                    onClick = {//Todo
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isButtonEnabled) Color.Unspecified else Color.Gray
+                    )
+                ) {
+                    Text("Let's go to the Quest!")
+                }
+            }
         }
     }
-    }
-    }
 }
-//@Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
-//@Composable
-//fun LoginFormPreview() {
-//    CityGameTheme {
-//        LoginDrawer({})
-//        RegisterDrawer()
-//    }
-//}
-//
-//@Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
-//@Composable
-//fun LoginFormPreviewDark() {
-//    CityGameTheme(darkTheme = true) {
-//        LoginDrawer({})
-//    }
-//}

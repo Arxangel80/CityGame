@@ -24,7 +24,6 @@ import java.nio.charset.Charset
 import androidx.compose.runtime.livedata.observeAsState
 
 
-
 enum class Screens() {
     Login,
     Quests,
@@ -39,7 +38,7 @@ enum class Screens() {
 
 class MainActivity : ComponentActivity() {
     val debugMode: Boolean = false
-    private var nfcAdapter : NfcAdapter? = null
+    private var nfcAdapter: NfcAdapter? = null
 
     private val nfcViewModel: NFCViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +47,6 @@ class MainActivity : ComponentActivity() {
         }
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
-        var tag: Tag?
 
         super.onCreate(savedInstanceState)
         setContent {
@@ -68,14 +66,16 @@ class MainActivity : ComponentActivity() {
                     navController.removeOnDestinationChangedListener(callback)
                 }
             }
-            
+
             NavHost(
                 navController = navController,
                 startDestination = Screens.Main.name
             ) {
                 composable(route = Screens.Login.name) {
-                    LoginScreen(onNextButtonClicked = {navController.navigate(Screens.Quests.name) {
-                        popUpTo(0) }
+                    LoginScreen(onNextButtonClicked = {
+                        navController.navigate(Screens.Quests.name) {
+                            popUpTo(0)
+                        }
                     })
                 }
                 composable(route = Screens.Quests.name) {
@@ -89,7 +89,10 @@ class MainActivity : ComponentActivity() {
                         "Cardan Grille Quest" to { navController.navigate(Screens.CardanGrilleQuest.name) },
                         "NFC Quest" to { navController.navigate(Screens.NFCQuest.name) },
                     )
-                    MainScreen(debugMode, navigateToQuestMap, navToChat = { navController.navigate(Screens.Chat.name) })
+                    MainScreen(
+                        debugMode,
+                        navigateToQuestMap,
+                        navToChat = { navController.navigate(Screens.Chat.name) })
                 }
                 composable(route = Screens.Chat.name) {
                     ChatScreen()
@@ -108,7 +111,7 @@ class MainActivity : ComponentActivity() {
                     CardanGrilleQuest()
                 }
                 composable(route = Screens.NFCQuest.name) {
-                    NFCQuest( readedMsg = readedMsg)
+                    NFCQuest(readedMsg = readedMsg)
                 }
             }
         }
@@ -158,7 +161,8 @@ class MainActivity : ComponentActivity() {
             val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
             nfcViewModel.setTagToWrite(intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG))
             if (rawMessages != null) {
-                val messages: Array<NdefMessage> = rawMessages.map { it as NdefMessage }.toTypedArray()
+                val messages: Array<NdefMessage> =
+                    rawMessages.map { it as NdefMessage }.toTypedArray()
                 val text = readTextFromMessages(messages)
                 nfcViewModel.setReadedMsg(text)
             }
@@ -178,9 +182,15 @@ class MainActivity : ComponentActivity() {
 
     private fun readText(record: NdefRecord): String {
         val payload = record.payload
-        val textEncoding = if ((payload[0].toInt() and 128) == 0) Charset.forName("UTF-8") else Charset.forName("UTF-16")
+        val textEncoding =
+            if ((payload[0].toInt() and 128) == 0) Charset.forName("UTF-8") else Charset.forName("UTF-16")
         val languageCodeLength = payload[0].toInt() and 63
-        return String(payload, languageCodeLength + 1, payload.size - languageCodeLength - 1, textEncoding)
+        return String(
+            payload,
+            languageCodeLength + 1,
+            payload.size - languageCodeLength - 1,
+            textEncoding
+        )
     }
 
     private val PERMISSION_REQUEST_CODE = 123
@@ -192,6 +202,7 @@ class MainActivity : ComponentActivity() {
             Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED)
     }
+
     private fun requestLocationPermission() {
         this.requestPermissions(
             arrayOf(

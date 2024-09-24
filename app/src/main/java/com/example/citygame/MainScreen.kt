@@ -18,11 +18,15 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.consumePositionChange
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -211,12 +216,9 @@ fun ChatButton(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomPullOutMenu(navigateToMap: Map<String, () -> Unit>) {
-    var expanded by remember { mutableStateOf(false) }
-    val maxOffsetY = 200F
-    var offsetY by remember { mutableFloatStateOf(maxOffsetY) }
-
     val descriptionsList =
         mapOf(
             "RLE Quest" to "Solve the mystery of visual cypher using the principles of RLE",
@@ -225,41 +227,22 @@ fun BottomPullOutMenu(navigateToMap: Map<String, () -> Unit>) {
             "Cardan Grille Quest" to "Use Cardan Grille to uncover a secret message in a text",
             "NFC Quest" to "Find hidden NFC tags and read them with your device"
         )
-
-    Box(
-        Modifier
-            .fillMaxWidth(0.75F)
-    ) {
-        Column(
-            Modifier
-                .align(Alignment.BottomCenter)
-                .offset(y = offsetY.dp)
-                .alpha(0.9F)
-                .background(Color.White, shape = RoundedCornerShape(16.dp))
-                .padding(8.dp)
-                .pointerInput(Unit) {
-                    detectDragGestures { change, dragAmount ->
-                        offsetY = (offsetY + dragAmount.y).coerceAtMost(maxOffsetY)
-                        if (offsetY > 0.1f) {
-                            expanded = true
-                        } else {
-                            expanded = false
-                            offsetY = 0.1f
-                        }
-                        change.consumePositionChange()
+    Box(modifier = Modifier.fillMaxWidth(0.8F)) {
+        BottomSheetScaffold(
+            modifier = Modifier.fillMaxWidth(0.5F),
+            sheetContent = {
+                navigateToMap.forEach { (label, onClick) ->
+                    val description = descriptionsList[label]
+                    if (description != null) {
+                        NavigationItem(label = label, description = description, onClick = onClick)
                     }
                 }
+            },
+            sheetPeekHeight = BottomSheetDefaults.SheetPeekHeight,
         ) {
-            navigateToMap.forEach { (label, onClick) ->
-                val description = descriptionsList[label]
-                if (description != null) {
-                    NavigationItem(label = label, description = description, onClick = onClick)
-                }
-            }
         }
     }
 }
-
 
 @Composable
 fun NavigationItem(label: String, description: String, onClick: () -> Unit) {
@@ -267,7 +250,7 @@ fun NavigationItem(label: String, description: String, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp, horizontal = 8.dp),
         shape = RoundedCornerShape(12.dp),
         color = Color.LightGray
     ) {

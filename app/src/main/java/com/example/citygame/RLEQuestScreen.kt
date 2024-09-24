@@ -24,33 +24,168 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun RLEQuestScreen(height:Int, width: Int, debugMode: Boolean = false) {
-    // "P" letter pattern
-//    val truePattern = listOf(false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-//        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-//        false, false, true, false, false, true, false, false, false, false, false, true, true, true, true, true, true,
-//        false, false, false, true, true, false, true, true, false, true, true, false, true, true, false, false, false,
-//        false, false, false, true, true, true, false, false, false, true, true, true, false, false, true, false, true,
-//        false, true, false, false, true, false, true, false, true, false, false, true, false, false, true, false, false,
-//        true, false, true, false, false, true, true, false, false, false, true, true, true, false, false, false, false,
-//        false, false, true, true, false, true, true, false, true, true, false, true, true, false, false, false, true,
-//        true, false, false, true, true, false, false, false)
+fun RLEQuestScreen(height: Int, width: Int, debugMode: Boolean = false) {
+//     "P" letter pattern
+    val truePattern = listOf(
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false
+    )
     // Cat pattern
-    val truePattern = listOf(true, true, false, false, false, false, true, true, true, false, true, true, true, true, false, true, true,
-        false, false, false, false, false, false, true, true, false, true, false, false, true, false, true, true, false, false, false, false,
-        false, false, true, true, false, false, true, true, false, false, true, false, true, false, false, false, false, true, false, false,
-        false, true, true, true, true, false, false)
-    var textState by remember {mutableStateOf("")}
+//    val truePattern = listOf(true, true, false, false, false, false, true, true, true, false, true, true, true, true, false, true, true,
+//        false, false, false, false, false, false, true, true, false, true, false, false, true, false, true, true, false, false, false, false,
+//        false, false, true, true, false, false, true, true, false, false, true, false, true, false, false, false, false, true, false, false,
+//        false, true, true, true, true, false, false)
+    var textState by remember { mutableStateOf("") }
     val columnState: SnapshotStateList<Boolean> = remember {
         mutableStateListOf<Boolean>().apply {
-            repeat(height*width) { add(false) }
+            repeat(height * width) { add(false) }
         }
     }
     Column {
         LazyVerticalGrid(
             columns = GridCells.Fixed(width)
         ) {
-            for (i in 0 until height*width) {
+            for (i in 0 until height * width) {
                 item {
                     Column(modifier = Modifier
                         .clickable {
@@ -67,12 +202,14 @@ fun RLEQuestScreen(height:Int, width: Int, debugMode: Boolean = false) {
                 }
             }
             if (debugMode)
-            Log.i("Pattern","Your pattern is: ${columnState.toList()}")
+                Log.i("Pattern", "Your pattern is: ${columnState.toList()}")
         }
-        Text(text = if (columnState.toList() == truePattern)
-            "True Pattern"
-        else
-            "False Pattern")
+        Text(
+            text = if (columnState.toList() == truePattern)
+                "True Pattern"
+            else
+                "False Pattern"
+        )
     }
 }
 
