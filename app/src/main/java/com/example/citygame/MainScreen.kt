@@ -10,6 +10,7 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -116,13 +117,23 @@ fun QuestMarker(quest: Quest, navTo: () -> Unit) {
 }
 
 @Composable
-fun MainScreen(debugMode: Boolean, navToQuestsMap: Map<String, () -> Unit>, navToChat: () -> Unit) {
-    MainDrawer(debugMode, navToQuestsMap, navToChat)
+fun MainScreen(
+    debugMode: Boolean,
+    navToQuestsMap: Map<String, () -> Unit>,
+    navToChat: () -> Unit,
+    navToStats: () -> Unit
+) {
+    MainDrawer(debugMode, navToQuestsMap, navToChat, navToStats)
 
 }
 
 @Composable
-fun MainDrawer(debugMode: Boolean, navToQuestsMap: Map<String, () -> Unit>, navToChat: () -> Unit) {
+fun MainDrawer(
+    debugMode: Boolean,
+    navToQuestsMap: Map<String, () -> Unit>,
+    navToChat: () -> Unit,
+    navToStats: () -> Unit
+) {
     var showMap by remember { mutableStateOf(false) }
     var location by remember { mutableStateOf(LatLng(0.0, 0.0)) }
     val content = LocalContext.current
@@ -177,14 +188,24 @@ fun MainDrawer(debugMode: Boolean, navToQuestsMap: Map<String, () -> Unit>, navT
         }
         BottomPullOutMenu(navToQuestsMap)
         ChatButton(navToChat)
-
     }
     if (debugMode) {
-        Surface(color = Color.White) {
+        Surface(
+            color = Color.White,
+            modifier = Modifier.padding(start = 130.dp)
+        )
+        {
             Column {
                 Text("Current coordinates:")
                 Text("Longitude: ${location.longitude}")
                 Text("Latitude: ${location.latitude}")
+
+                Button(onClick = {
+                    navToStats()
+                }) {
+                    Text("Stats")
+                }
+
             }
         }
     }

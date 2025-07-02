@@ -1,5 +1,6 @@
 package com.example.citygame
 
+import FeedbackScreen
 import NFCViewModel
 import android.Manifest
 import android.app.PendingIntent
@@ -33,11 +34,12 @@ enum class Screens() {
     GestureQuest,
     CardanGrilleQuest,
     NFCQuest,
-    Chat
+    Chat,
+    FeedBack
 }
 
 class MainActivity : ComponentActivity() {
-    val debugMode: Boolean = false
+    val debugMode: Boolean = true
     private var nfcAdapter: NfcAdapter? = null
 
     private val nfcViewModel: NFCViewModel by viewModels()
@@ -69,7 +71,7 @@ class MainActivity : ComponentActivity() {
 
             NavHost(
                 navController = navController,
-                startDestination = Screens.Main.name
+                startDestination = Screens.Login.name
             ) {
                 composable(route = Screens.Login.name) {
                     LoginScreen(onNextButtonClicked = {
@@ -80,6 +82,9 @@ class MainActivity : ComponentActivity() {
                 }
                 composable(route = Screens.Quests.name) {
                     QuestsScreen(navigateToMain = { navController.navigate(Screens.Main.name) })
+                }
+                composable(route = Screens.FeedBack.name) {
+                    QuestsScreen(navigateToMain = { navController.navigate(Screens.FeedBack.name) })
                 }
                 composable(route = Screens.Main.name) {
                     val navigateToQuestMap = mapOf(
@@ -92,7 +97,9 @@ class MainActivity : ComponentActivity() {
                     MainScreen(
                         debugMode,
                         navigateToQuestMap,
-                        navToChat = { navController.navigate(Screens.Chat.name) })
+                        navToChat = { navController.navigate(Screens.Chat.name) },
+                        navToStats = { navController.navigate(Screens.FeedBack.name) }
+                    )
                 }
                 composable(route = Screens.Chat.name) {
                     ChatScreen()
@@ -112,6 +119,9 @@ class MainActivity : ComponentActivity() {
                 }
                 composable(route = Screens.NFCQuest.name) {
                     NFCQuest(readedMsg = readedMsg)
+                }
+                composable(route = Screens.FeedBack.name) {
+                    FeedbackScreen()
                 }
             }
         }
