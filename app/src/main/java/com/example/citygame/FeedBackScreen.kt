@@ -196,11 +196,9 @@ fun FeedbackScreen() {
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f)) // Занимает оставшееся место
+            Spacer(modifier = Modifier.weight(1f))
 
             Button(onClick = {
-                // Действие по отправке обратной связи
-                // Например, отправить данные на сервер
                 println("Stats: Quests: $questsCompleted, Steps $totalSteps")
                 println("Rating: $rating")
                 println("Favourite quest: $favoriteQuest")

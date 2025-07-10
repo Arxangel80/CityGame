@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">CityGame</string>
-    <string name="SignUp">NEW ACCOUNT</string>
-    <string name="ForgotPassword">FORGOT PASSWORD</string>
+    <string name="SignUp">Don\'t have an account? Sign Up</string>
+    <string name="ForgotPassword">Forgot password</string>
+    <string name="LoginActionText">Login</string>
+    <string name="RegisterActionText">Sign Up</string>
+    <string name="LoginInsteadText">Already have an account? Login</string>
 </resources>

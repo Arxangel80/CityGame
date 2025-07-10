@@ -1,5 +1,6 @@
 package com.example.citygame
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +20,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,17 +29,58 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.socket.client.IO
+import io.socket.client.Socket
+import okhttp3.HttpUrl
+import org.json.JSONObject
 
 
 @Composable
 fun QuestsScreen(navigateToMain: () -> Unit) {
+    val context = LocalContext.current
+    val app = context.applicationContext as CityGameApp
+
+    val url = HttpUrl.Builder()
+        .scheme("http")
+        .host("192.168.0.17")
+        .port(5000)
+        .build()
+
+    val cookieHeader = remember {
+        app.siManager.cookieJar.getCookieHeader(app, cookieJar, url) ?: ""
+    }
+
+    val socket = remember {
+        val opts = IO.Options().apply {
+            extraHeaders = mapOf(
+                "Cookie" to listOf(cookieHeader)
+            )
+        }
+        IO.socket("http://192.168.0.17:5000", opts)
+    }
+
+
+    LaunchedEffect(Unit) {
+        socket.on(Socket.EVENT_CONNECT) {
+            Log.d("SocketIO", "Connected to server")
+        }
+        socket.on("connected") { args ->
+            val message = args.getOrNull(0)
+            Log.d("SocketIO", "Parsed message: $message")
+        }
+        socket.connect()
+    }
+
+
     QuestsDrawer(navigateToMain)
 }
+
 
 data class GridItemData(val picture: Int, val title: String, val description: String)
 

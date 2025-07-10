@@ -1,12 +1,13 @@
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.android") version "2.0.0"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
     namespace = "com.example.citygame"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.citygame"
@@ -40,9 +41,6 @@ android {
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -51,6 +49,10 @@ android {
 }
 
 dependencies {
+    val composeBom =
+        platform("androidx.compose:compose-bom:2025.05.00")
+    implementation(composeBom)
+
     val nav_version = "2.7.7"
     val maps_compose_version = "4.3.3"
     val play_services_version = "21.3.0"
@@ -66,6 +68,10 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:${camerax_version}")
     implementation("androidx.camera:camera-video:${camerax_version}")
 
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation("androidx.room:room-runtime-android:2.7.2")
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
+
     implementation("androidx.camera:camera-view:${camerax_version}")
     implementation("androidx.camera:camera-extensions:${camerax_version}")
 
@@ -80,6 +86,7 @@ dependencies {
 
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation(platform("androidx.compose:compose-bom:2024.05.00"))
+
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -101,5 +108,8 @@ dependencies {
     implementation("io.github.sceneview:sceneview:$sceneview_version")
 
     implementation("io.coil-kt:coil-compose:2.7.0") //For AsyncImages
+
+    // WebSocket protocol
+    implementation("io.socket:socket.io-client:2.0.1")
 
 }
