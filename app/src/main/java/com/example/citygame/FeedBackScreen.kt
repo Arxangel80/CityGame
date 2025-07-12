@@ -11,7 +11,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -23,7 +25,7 @@ fun StatisticsSection(
 ) {
     Column {
         Text(
-            "Your achievements", // Более мотивирующий заголовок
+            "Your achievements",
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.padding(bottom = 8.dp)
         )
@@ -77,7 +79,7 @@ fun StatisticRow(
     icon: ImageVector,
     label: String,
     value: String,
-    iconTint: androidx.compose.ui.graphics.Color = LocalContentColor.current
+    iconTint: Color = LocalContentColor.current
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
@@ -98,16 +100,13 @@ fun StatisticRow(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedbackScreen() {
-    // Эти значения должны поступать из вашей модели данных или ViewModel
-    val scrollState = rememberScrollState()
-    val questsCompleted = 5
-    val totalSteps = 5
-    val questTimes = listOf("Quest 1: 15 min", "Quest 2: 25 min", "Quest 3: 10 min")
-    val percentile = 96
+    val context = LocalContext.current
+//    val viewModel = remember { AuthViewModel(LocalContext.current) }
+    val viewModel = remember { FeedbackViewModel(context) }
+    val sessionManager = viewModel.app.questSessionManager
 
-    var rating by remember { mutableStateOf(0f) }
-    var favoriteQuest by remember { mutableStateOf("") }
-    val questOptions = listOf("Q 1", "Q 2", "Q 3", "Q 4", "Q 5") // Пример
+    val scrollState = rememberScrollState()
+    var expanded by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -123,19 +122,17 @@ fun FeedbackScreen() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Статистика
             StatisticsSection(
-                questsCompleted = questsCompleted,
-                totalSteps = totalSteps,
-                questTimes = questTimes
+                questsCompleted = viewModel.questsCompleted,
+                totalSteps = sessionManager.stepTracker.stepsSinceStart.value,
+                questTimes = viewModel.questTimes
             )
 
-            // Плашка "Самый умный"
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
             ) {
                 Text(
-                    text = "You're the best, you have completed the tasks faster than: $percentile% of users!",
+                    text = "You're the best, you have completed the tasks faster than: ${viewModel.percentile}% of users!",
                     modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.titleMedium
                 )
@@ -143,36 +140,30 @@ fun FeedbackScreen() {
 
             Divider(modifier = Modifier.padding(vertical = 16.dp))
 
-            // Оценка создателей
             Text(
                 "Give your rating to the overall performace",
                 style = MaterialTheme.typography.headlineSmall
             )
-            // Здесь можно использовать компонент для рейтинга (звездочки и т.д.)
-            // Для простоты используем Slider
-            Text("Your rating: ${rating.toInt()}/5")
+            Text("Your rating: ${viewModel.rating.toInt()}/5")
             Slider(
-                value = rating,
-                onValueChange = { rating = it },
+                value = viewModel.rating,
+                onValueChange = { viewModel.onRatingChange(it) },
                 valueRange = 0f..5f,
-                steps = 4 // 0, 1, 2, 3, 4, 5
+                steps = 4
             )
 
-            // Какой квест понравился больше
             Text(
                 "Which of the tasks was the best",
                 style = MaterialTheme.typography.headlineSmall
             )
-            // Используем выпадающий список (ExposedDropdownMenuBox)
-            var expanded by remember { mutableStateOf(false) }
 
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded }
             ) {
                 OutlinedTextField(
-                    value = favoriteQuest,
-                    onValueChange = { /* Блокируем прямое изменение */ },
+                    value = viewModel.favoriteQuest,
+                    onValueChange = { },
                     readOnly = true,
                     label = { Text("Choose quest") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -184,11 +175,11 @@ fun FeedbackScreen() {
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
-                    questOptions.forEach { selectionOption ->
+                    viewModel.questOptions.forEach { selectionOption ->
                         DropdownMenuItem(
                             text = { Text(selectionOption) },
                             onClick = {
-                                favoriteQuest = selectionOption
+                                viewModel.onFavoriteQuestSelected(selectionOption)
                                 expanded = false
                             }
                         )
@@ -199,9 +190,7 @@ fun FeedbackScreen() {
             Spacer(modifier = Modifier.weight(1f))
 
             Button(onClick = {
-                println("Stats: Quests: $questsCompleted, Steps $totalSteps")
-                println("Rating: $rating")
-                println("Favourite quest: $favoriteQuest")
+                viewModel.sendFeedback()
             }) {
                 Text("Send feedback")
             }
@@ -209,10 +198,10 @@ fun FeedbackScreen() {
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun FeedbackScreenPreview() {
-//    MaterialTheme {
-//        FeedbackScreen()
-//    }
-//}
+@Preview(showBackground = true)
+@Composable
+fun FeedbackScreenPreview() {
+    MaterialTheme {
+        FeedbackScreen()
+    }
+}

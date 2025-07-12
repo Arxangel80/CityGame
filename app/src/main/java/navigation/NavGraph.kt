@@ -1,10 +1,13 @@
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.citygame.CardanGrilleQuest
 import com.example.citygame.ChatScreen
 import com.example.citygame.CipherScreen
+import com.example.citygame.CityGameApp
 import com.example.citygame.GestureQuestScreen
 import com.example.citygame.LoginScreen
 import com.example.citygame.MainScreen
@@ -14,7 +17,7 @@ import com.example.citygame.RLEQuestScreen
 import com.example.citygame.Screens
 
 @Composable
-fun AppNavGraph(navController: NavHostController, debugMode: Boolean, readedMsg: String) {
+fun AppNavGraph(navController: NavHostController, readedMsg: String) {
     NavHost(
         navController = navController,
         startDestination = Screens.Login.name
@@ -30,7 +33,7 @@ fun AppNavGraph(navController: NavHostController, debugMode: Boolean, readedMsg:
             QuestsScreen(navigateToMain = { navController.navigate(Screens.Main.name) })
         }
         composable(route = Screens.FeedBack.name) {
-            QuestsScreen(navigateToMain = { navController.navigate(Screens.FeedBack.name) })
+            FeedbackScreen()
         }
         composable(route = Screens.Main.name) {
             val navigateToQuestMap = mapOf(
@@ -41,7 +44,6 @@ fun AppNavGraph(navController: NavHostController, debugMode: Boolean, readedMsg:
                 "NFC Quest" to { navController.navigate(Screens.NFCQuest.name) },
             )
             MainScreen(
-                debugMode,
                 navigateToQuestMap,
                 navToChat = { navController.navigate(Screens.Chat.name) },
                 navToStats = { navController.navigate(Screens.FeedBack.name) }
@@ -52,7 +54,7 @@ fun AppNavGraph(navController: NavHostController, debugMode: Boolean, readedMsg:
         }
 
         composable(route = Screens.RLEQuest.name) {
-            RLEQuestScreen(8, 8, debugMode)
+            RLEQuestScreen(8, 8)
         }
         composable(route = Screens.CipherQuest.name) {
             CipherScreen()

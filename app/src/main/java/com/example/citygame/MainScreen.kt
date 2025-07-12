@@ -105,18 +105,16 @@ fun QuestMarker(quest: Quest, navTo: () -> Unit) {
 
 @Composable
 fun MainScreen(
-    debugMode: Boolean,
     navToQuestsMap: Map<String, () -> Unit>,
     navToChat: () -> Unit,
     navToStats: () -> Unit
 ) {
-    MainDrawer(debugMode, navToQuestsMap, navToChat, navToStats)
+    MainDrawer(navToQuestsMap, navToChat, navToStats)
 
 }
 
 @Composable
 fun MainDrawer(
-    debugMode: Boolean,
     navToQuestsMap: Map<String, () -> Unit>,
     navToChat: () -> Unit,
     navToStats: () -> Unit
@@ -177,7 +175,7 @@ fun MainDrawer(
         BottomPullOutMenu(navToQuestsMap)
         ChatButton(navToChat)
     }
-    if (debugMode) {
+    if (BuildConfig.DEBUG) {
         Surface(
             color = Color.White,
             modifier = Modifier.padding(start = 130.dp)

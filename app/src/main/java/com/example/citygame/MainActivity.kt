@@ -40,7 +40,6 @@ enum class Screens() {
 }
 
 class MainActivity : ComponentActivity() {
-    val debugMode: Boolean = true
     private var nfcAdapter: NfcAdapter? = null
     private val nfcViewModel: NFCViewModel by viewModels()
 
@@ -69,7 +68,7 @@ class MainActivity : ComponentActivity() {
                     navController.removeOnDestinationChangedListener(callback)
                 }
             }
-            AppNavGraph(navController = navController, debugMode, readedMsg)
+            AppNavGraph(navController = navController, readedMsg)
         }
     }
 

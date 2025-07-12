@@ -1,3 +1,4 @@
+import android.util.Log
 import com.example.citygame.data.remote.PersistentCookieJar
 import io.socket.client.IO
 import io.socket.client.Socket
@@ -5,32 +6,41 @@ import okhttp3.HttpUrl
 import org.json.JSONObject
 
 class SocketIOManager(
-    baseUrl: String,
-    private val cookieJar: PersistentCookieJar
+    private val baseUrl: String,
+    val cookieJar: PersistentCookieJar
 ) {
-    private val socket: Socket = IO.socket(baseUrl)
+    private var socket: Socket? = null
 
-    private fun getCookieHeader(cookieJar: PersistentCookieJar, url: HttpUrl): String? {
-        return (cookieJar as? PersistentCookieJar)?.getCookieHeader(cookieJar, url)
+    private fun getCookieHeader(url: HttpUrl): String? {
+        return cookieJar.loadForRequest(url).joinToString("; ") { "${it.name}=${it.value}" }
     }
 
-    fun onConnect() {
-        socket.on(Socket.EVENT_CONNECT) {
-            println("Socket.IO connected")
-        }
-        socket.on("connected") { args ->
-            val data = args[0] as JSONObject
-            println("Message from server: ${data.getString("message")}")
-        }
-        socket.connect()
-    }
+    fun connect(url: HttpUrl, onMessage: (String) -> Unit) {
+        val cookieHeader = getCookieHeader(url) ?: ""
 
+        val opts = IO.Options().apply {
+            extraHeaders = mapOf("Cookie" to listOf(cookieHeader))
+        }
+
+        socket = IO.socket(baseUrl, opts)
+
+        socket?.apply {
+            on(Socket.EVENT_CONNECT) {
+                Log.i("SocketIO", "Socket.IO connected")
+            }
+            on("connected") { args ->
+                val data = args.getOrNull(0)
+                onMessage(data?.toString() ?: "")
+            }
+            connect()
+        }
+    }
 
     fun send(message: String) {
-        socket.emit("message", message)
+        socket?.emit("message", message)
     }
 
-    fun onDisconnect() {
-        socket.disconnect()
+    fun disconnect() {
+        socket?.disconnect()
     }
 }

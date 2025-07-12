@@ -1,5 +1,6 @@
 package com.example.citygame
 
+import QuestSessionManager
 import SocketIOManager
 import android.app.Application
 import com.example.citygame.data.NetworkModule
@@ -10,6 +11,7 @@ class CityGameApp : Application() {
     lateinit var cookieJar: PersistentCookieJar
     lateinit var siManager: SocketIOManager
     lateinit var apiService: ApiService
+    val questSessionManager by lazy { QuestSessionManager(this) }
 
 
     override fun onCreate() {

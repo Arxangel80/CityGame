@@ -40,6 +40,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     packaging {
         resources {
@@ -52,6 +53,7 @@ dependencies {
     val composeBom =
         platform("androidx.compose:compose-bom:2025.05.00")
     implementation(composeBom)
+    debugImplementation("androidx.compose.ui:ui-tooling:1.8.3")
 
     val nav_version = "2.7.7"
     val maps_compose_version = "4.3.3"
@@ -97,8 +99,6 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.05.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     implementation("androidx.navigation:navigation-compose:$nav_version")
 

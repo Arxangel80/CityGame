@@ -1,6 +1,8 @@
 package com.example.citygame
 
-import android.util.Log
+import GridItem
+import QuestsViewModel
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,9 +24,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,76 +36,37 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.socket.client.IO
-import io.socket.client.Socket
-import okhttp3.HttpUrl
-import org.json.JSONObject
 
 
 @Composable
-fun QuestsScreen(navigateToMain: () -> Unit) {
+fun QuestsScreen(
+    navigateToMain: () -> Unit,
+) {
+    val app = LocalContext.current.applicationContext as CityGameApp
+    val viewModel = remember { QuestsViewModel(app.siManager) }
     val context = LocalContext.current
-    val app = context.applicationContext as CityGameApp
 
-    val url = HttpUrl.Builder()
-        .scheme("http")
-        .host("192.168.0.17")
-        .port(5000)
-        .build()
-
-    val cookieHeader = remember {
-        app.siManager.cookieJar.getCookieHeader(app, cookieJar, url) ?: ""
-    }
-
-    val socket = remember {
-        val opts = IO.Options().apply {
-            extraHeaders = mapOf(
-                "Cookie" to listOf(cookieHeader)
-            )
-        }
-        IO.socket("http://192.168.0.17:5000", opts)
-    }
-
+    val toastMessage by viewModel.toastMessage
 
     LaunchedEffect(Unit) {
-        socket.on(Socket.EVENT_CONNECT) {
-            Log.d("SocketIO", "Connected to server")
+        app.questSessionManager.startQuest()
+    }
+
+    LaunchedEffect(toastMessage) {
+        toastMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            viewModel.clearToast()
         }
-        socket.on("connected") { args ->
-            val message = args.getOrNull(0)
-            Log.d("SocketIO", "Parsed message: $message")
-        }
-        socket.connect()
     }
 
 
-    QuestsDrawer(navigateToMain)
+
+    QuestsDrawer(navigateToMain, viewModel.items)
 }
 
 
-data class GridItemData(val picture: Int, val title: String, val description: String)
-
 @Composable
-fun QuestsDrawer(navigateToMain: () -> Unit) {
-    val pictures = listOf(R.drawable.cit, R.drawable.pp, R.drawable.cit)
-    val titles =
-        listOf("EiT Faculty game", "Campus game", "Text 2", "Text 3")
-    val desctiption = listOf(
-        "Experience an immersive mobile quest through the rich history of your alma mater, uncovering hidden stories.",
-        "Dive into a captivating journey through history of poznan university of technology with our interactive quest.",
-        "Description Text 2",
-        "Description Text 3"
-    )
-
-
-    val items = List(10) { index ->
-        GridItemData(
-            picture = pictures[index % pictures.size],
-            title = titles[index % titles.size],
-            description = desctiption[index % desctiption.size]
-        )
-    }
-
+fun QuestsDrawer(navigateToMain: () -> Unit, items: SnapshotStateList<GridItem>) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(1),
         contentPadding = PaddingValues(8.dp),
@@ -121,7 +83,7 @@ fun QuestsDrawer(navigateToMain: () -> Unit) {
 
 
 @Composable
-fun GridItem(item: GridItemData, onClick: () -> Unit) {
+fun GridItem(item: GridItem, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .padding(4.dp)
