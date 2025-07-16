@@ -6,9 +6,12 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.AndroidViewModel
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlin.collections.set
 
-class QuestSessionManager(private val context: Context) {
+class TrackersManager(private val context: Context) {
     val stepTracker = QuestStepTracker(context as Application)
     val timeTracker = QuestTimeTracker()
 
@@ -65,50 +68,60 @@ class QuestStepTracker(app: Application) : AndroidViewModel(app) {
 
 
 class QuestTimeTracker {
-    private var startTime: Long = 0
-    private var elapsedSeconds: Long = 0
-    private var isTracking: Boolean = false
+    private var totalStartTime = 0L
+    private var currentQuestStartTime = 0L
+    var currentQuestName: String? = null
+
+    val completedQuestTimes = mutableMapOf<String, Long>()
 
     fun startTracking() {
-        if (!isTracking) {
-            startTime = System.currentTimeMillis()
-            isTracking = true
-        }
+        totalStartTime = System.currentTimeMillis()
     }
 
     fun stopTracking() {
-        if (isTracking) {
-            val endTime = System.currentTimeMillis()
-            elapsedSeconds += (endTime - startTime)
-            isTracking = false
-        }
+        completedQuestTimes.clear()
+        currentQuestStartTime = 0L
+        currentQuestName = null
+        totalStartTime = 0L
     }
 
-    fun reset() {
-        startTime = 0
-        elapsedSeconds = 0
-        isTracking = false
-        println("Tracker reset")
+    fun addQuestToTrack(questId: String) {
+        currentQuestStartTime = System.currentTimeMillis()
+        currentQuestName = questId
+        completedQuestTimes[questId] = 0L
     }
 
-    fun getElapsedSeconds(): Long {
-        return if (isTracking) {
-            val current = System.currentTimeMillis()
-            elapsedSeconds + TimeUnit.MILLISECONDS.toSeconds(current - startTime)
+    fun completeQuest(questId: String) {
+        val duration = System.currentTimeMillis() - currentQuestStartTime
+        completedQuestTimes[questId] = duration
+        currentQuestStartTime = 0L
+        currentQuestName = null
+    }
+
+    fun totalTime(): Long {
+        return System.currentTimeMillis() - totalStartTime
+    }
+
+    fun currentQuestElapsedTime(): Long {
+        return if (currentQuestStartTime != 0L) {
+            System.currentTimeMillis() - currentQuestStartTime
         } else {
-            elapsedSeconds
+            0L
         }
     }
 
-    fun getFormattedElapsed(): String {
-        return formatSeconds(getElapsedSeconds())
+    fun totalTimeFlow(): Flow<Long> = flow {
+        while (true) {
+            emit(totalTime())
+            delay(1000L)
+        }
     }
 
-    private fun formatSeconds(seconds: Long): String {
-        val hrs = seconds / 3600
-        val mins = (seconds % 3600) / 60
-        val secs = seconds % 60
-        return String.format("%02d:%02d:%02d", hrs, mins, secs)
+    fun currentTimeFlow(): Flow<Long> = flow {
+        while (true) {
+            emit(currentQuestElapsedTime())
+            delay(1000L)
+        }
     }
 }
 

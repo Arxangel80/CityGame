@@ -1,7 +1,5 @@
 package com.example.citygame
 
-import AppNavGraph
-import FeedbackScreen
 import NFCViewModel
 import android.Manifest
 import android.app.PendingIntent
@@ -12,18 +10,21 @@ import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.nfc.Tag
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import java.nio.charset.Charset
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.citygame.Notification.LocationService
+import navigation.AppNavGraph
+import java.nio.charset.Charset
 
 
 enum class Screens() {
@@ -36,7 +37,8 @@ enum class Screens() {
     CardanGrilleQuest,
     NFCQuest,
     Chat,
-    FeedBack
+    FeedBack,
+    SuddenMessage
 }
 
 class MainActivity : ComponentActivity() {
@@ -44,9 +46,12 @@ class MainActivity : ComponentActivity() {
     private val nfcViewModel: NFCViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (!checkLocationPermission()) {
-            requestLocationPermission()
-        }
+        requestAllImportantPermissions()
+
+        val startDestination =
+            intent.getStringExtra("startDestination")
+                ?: Screens.Login.name // Only for Debug purposes
+
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
 
@@ -68,7 +73,7 @@ class MainActivity : ComponentActivity() {
                     navController.removeOnDestinationChangedListener(callback)
                 }
             }
-            AppNavGraph(navController = navController, readedMsg)
+            AppNavGraph(navController = navController, readedMsg, startDestination)
         }
     }
 
@@ -148,24 +153,67 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    private val PERMISSION_REQUEST_CODE = 123
-    private fun checkLocationPermission(): Boolean {
-        return (this.checkSelfPermission(
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-                && this.checkSelfPermission(
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED)
+    fun requestAllImportantPermissions() {
+        val activity = this
+        val permissionsToRequest = mutableListOf<String>()
+
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsToRequest.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
+        // Добавляем разрешение на камеру
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsToRequest.add(Manifest.permission.CAMERA)
+        }
+
+        if (permissionsToRequest.isNotEmpty()) {
+            ActivityCompat.requestPermissions(
+                activity,
+                permissionsToRequest.toTypedArray(),
+                1001
+            )
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (ContextCompat.checkSelfPermission(
+                        activity,
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                    )
+                    != PackageManager.PERMISSION_GRANTED
+                ) {
+                    ActivityCompat.requestPermissions(
+                        activity,
+                        arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                        1002
+                    )
+                }
+            }
+        }
     }
 
-    private fun requestLocationPermission() {
-        this.requestPermissions(
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.CAMERA
-            ),
-            PERMISSION_REQUEST_CODE
-        )
+    fun startService() {
+        val serviceIntent = Intent(this, LocationService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent)
+        } else {
+            startService(serviceIntent)
+        }
     }
 }

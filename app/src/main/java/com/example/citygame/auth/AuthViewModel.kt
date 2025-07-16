@@ -1,9 +1,7 @@
-import android.content.Context
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.citygame.CityGameApp
-import com.example.citygame.data.NetworkModule
-import com.example.citygame.data.remote.ApiService
 import com.example.citygame.data.remote.LoginRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,52 +9,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
-// --- Data models ---
-data class LoginCredentials(
-    val login: String = "",
-    val pwd: String = ""
-) {
-    fun isNotEmpty(): Boolean {
-        return login.isNotBlank() && pwd.isNotBlank()
-    }
-}
 
-data class RegisterCredentials(
-    val login: String = "",
-    val email: String = "",
-    val password: String = "",
-    val confirmPassword: String = ""
-) {
-    fun isNotEmpty(): Boolean {
-        return login.isNotBlank() && email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank()
-    }
-
-    fun passwordsMatch(): Boolean {
-        return password == confirmPassword
-    }
-}
-
-
-// --- UI State ---
-sealed class LoginUiState {
-    object Idle : LoginUiState()
-    object Loading : LoginUiState()
-    data class Success(val message: String) : LoginUiState()
-    data class Error(val message: String) : LoginUiState()
-}
-
-sealed class RegisterUiState {
-    object Idle : RegisterUiState()
-    object Loading : RegisterUiState()
-    data class Success(val message: String) : RegisterUiState()
-    data class Error(val message: String) : RegisterUiState()
-}
-
-class AuthViewModel(private val context: Context) :
-    ViewModel() {
-
-    val app = context.applicationContext as CityGameApp
-    val apiService = app.apiService
+class AuthViewModel(
+    app: Application
+) : AndroidViewModel(app) {
+    val apiService = (app as CityGameApp).apiService
 
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
@@ -199,5 +156,46 @@ class AuthViewModel(private val context: Context) :
     fun resetRegisterState() {
         _registerUiState.value = RegisterUiState.Idle
         _registerCredentials.value = RegisterCredentials()
+    }
+
+    // --- Data models ---
+    data class LoginCredentials(
+        val login: String = "Dias",
+        val pwd: String = "Loh"
+    ) {
+        fun isNotEmpty(): Boolean {
+            return login.isNotBlank() && pwd.isNotBlank()
+        }
+    }
+
+    data class RegisterCredentials(
+        val login: String = "",
+        val email: String = "",
+        val password: String = "",
+        val confirmPassword: String = ""
+    ) {
+        fun isNotEmpty(): Boolean {
+            return login.isNotBlank() && email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank()
+        }
+
+        fun passwordsMatch(): Boolean {
+            return password == confirmPassword
+        }
+    }
+
+
+    // --- UI State ---
+    sealed class LoginUiState {
+        object Idle : LoginUiState()
+        object Loading : LoginUiState()
+        data class Success(val message: String) : LoginUiState()
+        data class Error(val message: String) : LoginUiState()
+    }
+
+    sealed class RegisterUiState {
+        object Idle : RegisterUiState()
+        object Loading : RegisterUiState()
+        data class Success(val message: String) : RegisterUiState()
+        data class Error(val message: String) : RegisterUiState()
     }
 }

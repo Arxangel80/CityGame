@@ -1,9 +1,8 @@
-package com.example.citygame
+package com.example.citygame.quests.cipherQuest
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
-import android.widget.Space
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,8 +27,6 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
-import dev.romainguy.kotlin.math.distance
-import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.random.Random
 

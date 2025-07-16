@@ -1,4 +1,4 @@
-package com.example.citygame
+package com.example.citygame.quests.rleQuest
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
@@ -187,14 +187,15 @@ fun RLEQuestScreen(height: Int, width: Int, debugMode: Boolean = false) {
         ) {
             for (i in 0 until height * width) {
                 item {
-                    Column(modifier = Modifier
-                        .clickable {
-                            columnState[i] = !columnState[i]
-                        }
-                        .background(if (columnState[i]) Color.Black else Color.Green)
-                        .border(border = BorderStroke(1.dp, Color.Red))
-                        .fillMaxWidth()
-                        .aspectRatio(1f)
+                    Column(
+                        modifier = Modifier
+                            .clickable {
+                                columnState[i] = !columnState[i]
+                            }
+                            .background(if (columnState[i]) Color.Black else Color.Green)
+                            .border(border = BorderStroke(1.dp, Color.Red))
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
                     )
                     {
 

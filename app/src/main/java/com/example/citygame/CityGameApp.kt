@@ -1,17 +1,19 @@
 package com.example.citygame
 
-import QuestSessionManager
+import TrackersManager
 import SocketIOManager
 import android.app.Application
 import com.example.citygame.data.NetworkModule
 import com.example.citygame.data.remote.ApiService
 import com.example.citygame.data.remote.PersistentCookieJar
+import com.example.citygame.LocationManager
 
 class CityGameApp : Application() {
     lateinit var cookieJar: PersistentCookieJar
     lateinit var siManager: SocketIOManager
     lateinit var apiService: ApiService
-    val questSessionManager by lazy { QuestSessionManager(this) }
+    lateinit var locationManager: LocationManager
+    val trackersManager by lazy { TrackersManager(this) }
 
 
     override fun onCreate() {

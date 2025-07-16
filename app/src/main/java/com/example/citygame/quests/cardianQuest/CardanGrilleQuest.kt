@@ -1,32 +1,24 @@
-package com.example.citygame
+package com.example.citygame.quests.cardianQuest
 
 import android.content.Context
-import android.widget.Button
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -34,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import com.example.citygame.R
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -41,10 +34,13 @@ import kotlin.coroutines.suspendCoroutine
 fun CardanGrilleQuest() {
 // Import necessary libraries and components
     val lensFacing = CameraSelector.LENS_FACING_BACK // Set the camera to use the rear-facing camera
-    val lifecycleOwner = LocalLifecycleOwner.current // Get the current lifecycle owner, used to bind the camera lifecycle
-    val context = LocalContext.current // Get the current context, needed for initializing camera and views
+    val lifecycleOwner =
+        LocalLifecycleOwner.current // Get the current lifecycle owner, used to bind the camera lifecycle
+    val context =
+        LocalContext.current // Get the current context, needed for initializing camera and views
     val preview = Preview.Builder().build() // Create a camera preview instance
-    val previewView = remember { PreviewView(context) } // Remember the PreviewView to display the camera preview
+    val previewView =
+        remember { PreviewView(context) } // Remember the PreviewView to display the camera preview
 
 // Variable to track if the grid overlay (grille) is enabled or not
     var isGrilleEnabled by remember { mutableStateOf(true) }
@@ -56,7 +52,11 @@ fun CardanGrilleQuest() {
     LaunchedEffect(lensFacing) {
         val cameraProvider = context.getCameraProvider() // Get the camera provider for the context
         cameraProvider.unbindAll() // Unbind any previously bound use cases
-        cameraProvider.bindToLifecycle(lifecycleOwner, cameraxSelector, preview) // Bind the camera to the lifecycle with the specified selector and preview
+        cameraProvider.bindToLifecycle(
+            lifecycleOwner,
+            cameraxSelector,
+            preview
+        ) // Bind the camera to the lifecycle with the specified selector and preview
         preview.setSurfaceProvider(previewView.surfaceProvider) // Set the surface provider for the preview to display the camera feed in the PreviewView
     }
 
@@ -80,11 +80,15 @@ fun CardanGrilleQuest() {
         }
 
         // Button to toggle the grid overlay (grille) on and off
-        Button(onClick = { isGrilleEnabled = !isGrilleEnabled }, modifier = Modifier.padding(10.dp)) {
+        Button(
+            onClick = { isGrilleEnabled = !isGrilleEnabled },
+            modifier = Modifier.padding(10.dp)
+        ) {
             Text(text = "Enable grille") // Button text
         }
     }
 }
+
 private suspend fun Context.getCameraProvider(): ProcessCameraProvider =
     suspendCoroutine { continuation ->
         ProcessCameraProvider.getInstance(this).also { cameraProvider ->

@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.citygame.LocationManager.getCurrentLocation
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -57,27 +59,8 @@ object Quests {
     val CipherQuest = Quest("Cipher Quest", LatLng(52.404395, 16.955508))
     val GestureQuest = Quest("Gesture quest", LatLng(52.406395, 16.955508))
     val CardanGrilleQuest = Quest("Cardan grille quest", LatLng(52.408395, 16.955508))
+    val SudeenMessage = Quest("Sudden Message", LatLng(52.410395, 16.955508))
 }
-
-@SuppressLint("MissingPermission")
-fun getCurrentLocation(context: Context, onLocationFetched: (location: LatLng) -> Unit) {
-    var loc: LatLng
-    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-
-    fusedLocationClient.lastLocation
-        .addOnSuccessListener { location: Location? ->
-            if (location != null) {
-                val latitude = location.latitude
-                val longitude = location.longitude
-                loc = LatLng(latitude, longitude)
-                onLocationFetched(loc)
-            }
-        }
-        .addOnFailureListener { exception: Exception ->
-            Log.d("MAP-EXCEPTION", exception.message.toString())
-        }
-}
-
 
 @Composable
 fun QuestMarker(quest: Quest, navTo: () -> Unit) {
@@ -109,6 +92,15 @@ fun MainScreen(
     navToChat: () -> Unit,
     navToStats: () -> Unit
 ) {
+    val app = LocalContext.current.applicationContext as CityGameApp
+
+    LaunchedEffect(Unit) {
+        app.trackersManager.startQuest()
+    }
+
+    LaunchedEffect(Unit) {
+        app.trackersManager.timeTracker.addQuestToTrack(navToQuestsMap.keys.first())
+    }
     MainDrawer(navToQuestsMap, navToChat, navToStats)
 
 }
@@ -122,6 +114,7 @@ fun MainDrawer(
     var showMap by remember { mutableStateOf(false) }
     var location by remember { mutableStateOf(LatLng(0.0, 0.0)) }
     val content = LocalContext.current
+
 
     // Get the last known location
     getCurrentLocation(content) {
@@ -168,6 +161,7 @@ fun MainDrawer(
                             it
                         )
                     }
+                    navToQuestsMap["Sudden Message"]?.let { QuestMarker(Quests.SudeenMessage, it) }
 
                 }
             }
@@ -232,7 +226,8 @@ fun BottomPullOutMenu(navigateToMap: Map<String, () -> Unit>) {
             "Cipher Quest" to "Solve the cipher with shifting your geoposition",
             "Gesture Quest" to "Use your device camera to replicate a sequence gestures",
             "Cardan Grille Quest" to "Use Cardan Grille to uncover a secret message in a text",
-            "NFC Quest" to "Find hidden NFC tags and read them with your device"
+            "NFC Quest" to "Find hidden NFC tags and read them with your device",
+            "Sudden Message" to "Get message"
         )
     Box(modifier = Modifier.fillMaxWidth(0.8F)) {
         BottomSheetScaffold(

@@ -55,6 +55,9 @@ dependencies {
     implementation(composeBom)
     debugImplementation("androidx.compose.ui:ui-tooling:1.8.3")
 
+    // Worker (used for notification)
+    implementation("androidx.work:work-runtime-ktx:2.10.2")
+
     val nav_version = "2.7.7"
     val maps_compose_version = "4.3.3"
     val play_services_version = "21.3.0"
@@ -70,9 +73,13 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:${camerax_version}")
     implementation("androidx.camera:camera-video:${camerax_version}")
 
+    // Online
     implementation("com.squareup.retrofit2:retrofit:3.0.0")
-    implementation("androidx.room:room-runtime-android:2.7.2")
     implementation("com.squareup.retrofit2:converter-gson:3.0.0")
+
+    // Internal storage
+    implementation("androidx.room:room-runtime:2.7.2")
+
 
     implementation("androidx.camera:camera-view:${camerax_version}")
     implementation("androidx.camera:camera-extensions:${camerax_version}")
@@ -82,7 +89,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
     // ViewModel utilities for Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version")
     implementation("androidx.compose.runtime:runtime-livedata:1.6.8")
 
 
@@ -95,10 +102,6 @@ dependencies {
     implementation("androidx.compose.material3:material3")
 
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.05.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 
     implementation("androidx.navigation:navigation-compose:$nav_version")
 

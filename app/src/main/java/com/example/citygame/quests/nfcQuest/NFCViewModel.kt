@@ -1,9 +1,6 @@
-import android.nfc.NdefMessage
-import android.nfc.NdefRecord
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import android.nfc.Tag
-import android.nfc.tech.Ndef
 
 class NFCViewModel : ViewModel() {
     private var tagToWrite: Tag? = null

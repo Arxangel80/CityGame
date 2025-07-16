@@ -1,15 +1,32 @@
-package com.example.citygame
+package com.example.citygame.auth
 
 import AuthViewModel
-import RegisterUiState
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,28 +37,29 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.citygame.R
 import com.example.citygame.ui.theme.CityGameTheme
 
 enum class LoginScreens {
-    logIn,
-    signUp,
+    LogIn,
+    SignUp,
 }
 
 @Composable
 fun LoginScreen(onNextButtonClicked: () -> Unit) {
-    var loginScreensState by remember { mutableStateOf(LoginScreens.logIn) }
-    val context = LocalContext.current
-    val viewModel = remember { AuthViewModel(context) }
+    var loginScreensState by remember { mutableStateOf(LoginScreens.LogIn) }
+    val viewModel: AuthViewModel = viewModel()
 
     CityGameTheme {
-        if (loginScreensState == LoginScreens.logIn) {
+        if (loginScreensState == LoginScreens.LogIn) {
             LoginDrawer(
                 viewModel,
                 onNextButtonClicked,
-                onSignUpButtonClicked = { loginScreensState = LoginScreens.signUp })
-        } else if (loginScreensState == LoginScreens.signUp) {
-            BackHandler(enabled = loginScreensState != LoginScreens.logIn) {
-                loginScreensState = LoginScreens.logIn
+                onSignUpButtonClicked = { loginScreensState = LoginScreens.SignUp })
+        } else if (loginScreensState == LoginScreens.SignUp) {
+            BackHandler(enabled = loginScreensState != LoginScreens.LogIn) {
+                loginScreensState = LoginScreens.LogIn
             }
             RegisterDrawer(viewModel)
         }
@@ -51,7 +69,7 @@ fun LoginScreen(onNextButtonClicked: () -> Unit) {
 @Composable
 fun LoginDrawer(
     viewModel: AuthViewModel,
-    onSuccesfullLogin: () -> Unit,
+    onSuccessfulLogin: () -> Unit,
     onSignUpButtonClicked: () -> Unit
 ) {
     val context = LocalContext.current
@@ -60,17 +78,17 @@ fun LoginDrawer(
 
     LaunchedEffect(uiState) {
         when (val currentState = uiState) {
-            is LoginUiState.Success -> {
+            is AuthViewModel.LoginUiState.Success -> {
                 Toast.makeText(
                     context,
                     currentState.message,
                     Toast.LENGTH_SHORT
                 ).show()
                 viewModel.resetLoginState()
-                onSuccesfullLogin()
+                onSuccessfulLogin()
             }
 
-            is LoginUiState.Error -> {
+            is AuthViewModel.LoginUiState.Error -> {
                 Toast.makeText(context, currentState.message, Toast.LENGTH_LONG)
                     .show()
                 viewModel.resetLoginState()
@@ -80,7 +98,7 @@ fun LoginDrawer(
         }
     }
 
-    val isFormEnabled = uiState !is LoginUiState.Loading
+    val isFormEnabled = uiState !is AuthViewModel.LoginUiState.Loading
     val isButtonEnabled by remember(loginCreds, uiState) {
         mutableStateOf(loginCreds.isNotEmpty() && isFormEnabled)
     }
@@ -95,7 +113,7 @@ fun LoginDrawer(
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
-            if (uiState is LoginUiState.Loading) {
+            if (uiState is AuthViewModel.LoginUiState.Loading) {
                 CircularProgressIndicator()
             }
 
@@ -131,20 +149,24 @@ fun LoginDrawer(
                     enabled = isFormEnabled,
                     modifier = Modifier.fillMaxWidth(),
                     keyboardActions = KeyboardActions(onDone = {
-                        if (isButtonEnabled) viewModel.login(onSuccesfullLogin)
+                        if (isButtonEnabled) viewModel.login(onSuccessfulLogin)
                     })
                 )
 
                 Button(
                     onClick = {
                         if (loginCreds.isNotEmpty()) {
-                            viewModel.login(onSuccesfullLogin)
+                            viewModel.login(onSuccessfulLogin)
                         }
                     },
                     enabled = isButtonEnabled,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(if (uiState is LoginUiState.Loading) "Loading..." else stringResource(id = R.string.LoginActionText))
+                    Text(
+                        if (uiState is AuthViewModel.LoginUiState.Loading) "Loading..." else stringResource(
+                            id = R.string.LoginActionText
+                        )
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -163,8 +185,8 @@ fun LoginDrawer(
 
 @Composable
 fun RegisterDrawer(
-    viewModel: AuthViewModel, // Используем AuthViewModel (или LoginViewModel, если не переименовали)
-    onSuccessfulRegistration: () -> Unit = {}, // Для навигации после успеха
+    viewModel: AuthViewModel,
+    onSuccessfulRegistration: () -> Unit = {},
     onSwitchToLoginClicked: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -173,15 +195,15 @@ fun RegisterDrawer(
 
     LaunchedEffect(registerState) {
         when (val currentState = registerState) {
-            is RegisterUiState.Success -> {
+            is AuthViewModel.RegisterUiState.Success -> {
                 Toast.makeText(context, "Registration Successful!", Toast.LENGTH_SHORT).show()
-                viewModel.resetRegisterState() // Сбрасываем состояние
-                onSuccessfulRegistration()    // Выполняем действие после успеха
+                viewModel.resetRegisterState()
+                onSuccessfulRegistration()
             }
 
-            is RegisterUiState.Error -> {
+            is AuthViewModel.RegisterUiState.Error -> {
                 Toast.makeText(context, currentState.message, Toast.LENGTH_LONG).show()
-                viewModel.resetRegisterState() // Сбрасываем состояние
+                viewModel.resetRegisterState()
             }
 
             else -> {
@@ -190,7 +212,7 @@ fun RegisterDrawer(
         }
     }
 
-    val isFormEnabled = registerState !is RegisterUiState.Loading
+    val isFormEnabled = registerState !is AuthViewModel.RegisterUiState.Loading
     val isButtonEnabled by remember(registerCreds, registerState) {
         mutableStateOf(registerCreds.isNotEmpty() && isFormEnabled)
     }
@@ -205,7 +227,7 @@ fun RegisterDrawer(
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
-            if (registerState is RegisterUiState.Loading) {
+            if (registerState is AuthViewModel.RegisterUiState.Loading) {
                 CircularProgressIndicator()
             }
 
@@ -283,7 +305,7 @@ fun RegisterDrawer(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        if (registerState is RegisterUiState.Loading) "Registering..." else stringResource(
+                        if (registerState is AuthViewModel.RegisterUiState.Loading) "Registering..." else stringResource(
                             id = R.string.RegisterActionText
                         )
                     )

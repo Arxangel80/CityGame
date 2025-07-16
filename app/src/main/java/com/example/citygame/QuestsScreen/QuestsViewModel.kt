@@ -1,19 +1,19 @@
+package com.example.citygame.QuestsScreen
+
+import android.app.Application
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.State
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
+import com.example.citygame.CityGameApp
 import com.example.citygame.R
 import okhttp3.HttpUrl
 
-data class GridItem(
-    val picture: Int,
-    val title: String,
-    val description: String
-)
 
 class QuestsViewModel(
-    private val socketManager: SocketIOManager
-) : ViewModel() {
+    app: Application
+) : AndroidViewModel(app) {
+    val socketManager = (app as CityGameApp).siManager
 
     val items = mutableStateListOf<GridItem>()
 
@@ -54,6 +54,7 @@ class QuestsViewModel(
 
     fun clearToast() {
         _toastMessage.value = null
+
     }
 
     private fun startSocket() {
@@ -66,4 +67,10 @@ class QuestsViewModel(
         super.onCleared()
         socketManager.disconnect()
     }
+
+    data class GridItem(
+        val picture: Int,
+        val title: String,
+        val description: String
+    )
 }

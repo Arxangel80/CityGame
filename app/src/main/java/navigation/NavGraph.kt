@@ -1,26 +1,28 @@
+package navigation
+
+import GestureQuestScreen
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.citygame.CardanGrilleQuest
-import com.example.citygame.ChatScreen
-import com.example.citygame.CipherScreen
-import com.example.citygame.CityGameApp
-import com.example.citygame.GestureQuestScreen
-import com.example.citygame.LoginScreen
+import com.example.citygame.quests.cardianQuest.CardanGrilleQuest
+import com.example.citygame.chat.ChatScreen
+import com.example.citygame.quests.cipherQuest.CipherScreen
+import com.example.citygame.feedback.StatisticsScreen
+import com.example.citygame.auth.LoginScreen
 import com.example.citygame.MainScreen
-import com.example.citygame.NFCQuest
-import com.example.citygame.QuestsScreen
-import com.example.citygame.RLEQuestScreen
+import com.example.citygame.quests.nfcQuest.NFCQuest
+import com.example.citygame.QuestsScreen.QuestsScreen
+import com.example.citygame.quests.rleQuest.RLEQuestScreen
 import com.example.citygame.Screens
 
 @Composable
-fun AppNavGraph(navController: NavHostController, readedMsg: String) {
+fun AppNavGraph(navController: NavHostController, readedMsg: String, startDestination: String) {
+
+
     NavHost(
         navController = navController,
-        startDestination = Screens.Login.name
+        startDestination = startDestination
     ) {
         composable(route = Screens.Login.name) {
             LoginScreen(onNextButtonClicked = {
@@ -33,7 +35,7 @@ fun AppNavGraph(navController: NavHostController, readedMsg: String) {
             QuestsScreen(navigateToMain = { navController.navigate(Screens.Main.name) })
         }
         composable(route = Screens.FeedBack.name) {
-            FeedbackScreen()
+            StatisticsScreen()
         }
         composable(route = Screens.Main.name) {
             val navigateToQuestMap = mapOf(
@@ -42,6 +44,7 @@ fun AppNavGraph(navController: NavHostController, readedMsg: String) {
                 "Gesture Quest" to { navController.navigate(Screens.GestureQuest.name) },
                 "Cardan Grille Quest" to { navController.navigate(Screens.CardanGrilleQuest.name) },
                 "NFC Quest" to { navController.navigate(Screens.NFCQuest.name) },
+                "SuddenMessage Quest" to { navController.navigate(Screens.SuddenMessage.name) }
             )
             MainScreen(
                 navigateToQuestMap,
@@ -52,7 +55,6 @@ fun AppNavGraph(navController: NavHostController, readedMsg: String) {
         composable(route = Screens.Chat.name) {
             ChatScreen()
         }
-
         composable(route = Screens.RLEQuest.name) {
             RLEQuestScreen(8, 8)
         }
@@ -69,7 +71,7 @@ fun AppNavGraph(navController: NavHostController, readedMsg: String) {
             NFCQuest(readedMsg = readedMsg)
         }
         composable(route = Screens.FeedBack.name) {
-            FeedbackScreen()
+            StatisticsScreen()
         }
     }
 }
