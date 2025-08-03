@@ -44,7 +44,6 @@ class StatisticsViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     var questsCompleted by mutableIntStateOf(0)
-    var totalSteps by mutableIntStateOf(0)
 
     var percentile by mutableIntStateOf(96)
 
@@ -73,7 +72,7 @@ class StatisticsViewModel(app: Application) : AndroidViewModel(app) {
 
     fun sendFeedback() {
 //      TODO: SEND FEEDBACK TO SERVER
-        println("Stats: Quests: $questsCompleted, Steps $totalSteps")
+        println("Stats: Quests: $questsCompleted, Steps $stepTracker.stepsSinceStart, Time: $totalTime")
         println("Rating: $rating")
         println("Favourite quest: $favoriteQuest")
     }

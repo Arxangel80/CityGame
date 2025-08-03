@@ -10,6 +10,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlin.collections.set
+import androidx.compose.runtime.State
+
 
 class TrackersManager(private val context: Context) {
     val stepTracker = QuestStepTracker(context as Application)
@@ -30,8 +32,9 @@ class QuestStepTracker(app: Application) : AndroidViewModel(app) {
     private val sensorManager = app.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private var stepCounterSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
 
-    var stepsSinceStart = mutableIntStateOf(0)
-        private set
+    private val _stepsSinceStart = mutableIntStateOf(0)
+    val stepsSinceStart: State<Int> get() = _stepsSinceStart
+
 
     private var initialSteps = -1
 
@@ -41,7 +44,7 @@ class QuestStepTracker(app: Application) : AndroidViewModel(app) {
                 if (initialSteps == -1) {
                     initialSteps = event.values[0].toInt()
                 }
-                stepsSinceStart.intValue = event.values[0].toInt() - initialSteps
+                _stepsSinceStart.intValue = event.values[0].toInt() - initialSteps
             }
         }
 
@@ -50,7 +53,7 @@ class QuestStepTracker(app: Application) : AndroidViewModel(app) {
 
     fun startTracking() {
         initialSteps = -1
-        stepsSinceStart.intValue = 0
+        _stepsSinceStart.intValue = 0
         stepCounterSensor?.let {
             sensorManager.registerListener(sensorListener, it, SensorManager.SENSOR_DELAY_UI)
         }

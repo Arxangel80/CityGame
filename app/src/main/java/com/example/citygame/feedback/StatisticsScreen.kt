@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.Timer
@@ -20,10 +21,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -51,11 +54,11 @@ import kotlin.collections.iterator
 @Composable
 fun StatisticsScreen() {
     val viewModel: StatisticsViewModel = viewModel()
-    val stepTracker = viewModel.stepTracker
 
     val scrollState = rememberScrollState()
     var expanded by remember { mutableStateOf(false) }
 
+    val totalSteps by viewModel.stepTracker.stepsSinceStart
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Feedback and stats") })
@@ -72,7 +75,7 @@ fun StatisticsScreen() {
         ) {
             StatisticsSection(
                 questsCompleted = viewModel.questsCompleted,
-                totalSteps = stepTracker.stepsSinceStart.intValue,
+                totalSteps = totalSteps,
                 totalTime = viewModel.formatMillisToHMS(viewModel.totalTime),
                 questTimes = viewModel.getStringTimes(),
                 lastQuestTime = viewModel.formatMillisToHMS(viewModel.lastQuestTime),
@@ -89,7 +92,11 @@ fun StatisticsScreen() {
                 )
             }
 
-            Divider(modifier = Modifier.padding(vertical = 16.dp))
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 16.dp),
+                thickness = DividerDefaults.Thickness,
+                color = DividerDefaults.color
+            )
 
             Text(
                 "Give your rating to the overall performace",
@@ -178,7 +185,7 @@ fun StatisticsSection(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 TrackerStatRow(
-                    icon = Icons.Filled.DirectionsWalk,
+                    icon = Icons.AutoMirrored.Filled.DirectionsWalk,
                     label = "Total steps",
                     value = totalSteps.toString(),
                     iconTint = MaterialTheme.colorScheme.secondary
@@ -194,7 +201,7 @@ fun StatisticsSection(
                         QuestTimeRow(quest, time)
                     }
                 }
-                lastQuestTime?.let { time ->
+                lastQuestTime.let { time ->
                     QuestTimeRow("Current quest", time)
                 }
                 Text(

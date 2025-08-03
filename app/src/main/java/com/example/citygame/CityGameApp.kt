@@ -6,13 +6,11 @@ import android.app.Application
 import com.example.citygame.data.NetworkModule
 import com.example.citygame.data.remote.ApiService
 import com.example.citygame.data.remote.PersistentCookieJar
-import com.example.citygame.LocationManager
 
 class CityGameApp : Application() {
     lateinit var cookieJar: PersistentCookieJar
     lateinit var siManager: SocketIOManager
     lateinit var apiService: ApiService
-    lateinit var locationManager: LocationManager
     val trackersManager by lazy { TrackersManager(this) }
 
 

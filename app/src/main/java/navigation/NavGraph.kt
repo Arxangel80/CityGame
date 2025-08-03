@@ -18,8 +18,6 @@ import com.example.citygame.Screens
 
 @Composable
 fun AppNavGraph(navController: NavHostController, readedMsg: String, startDestination: String) {
-
-
     NavHost(
         navController = navController,
         startDestination = startDestination

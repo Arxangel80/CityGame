@@ -12,6 +12,7 @@ import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -22,7 +23,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.citygame.Notification.LocationService
+import com.example.citygame.Notification.LocationViewModel
+import com.example.citygame.Notification.NotificationUtils
 import navigation.AppNavGraph
 import java.nio.charset.Charset
 
@@ -44,18 +46,20 @@ enum class Screens() {
 class MainActivity : ComponentActivity() {
     private var nfcAdapter: NfcAdapter? = null
     private val nfcViewModel: NFCViewModel by viewModels()
+    private val locationViewModel by viewModels<LocationViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Request for all permisions
         requestAllImportantPermissions()
 
+        // Get intent from console to start app from specific destination
         val startDestination =
             intent.getStringExtra("startDestination")
                 ?: Screens.Login.name // Only for Debug purposes
 
-
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
-
-        super.onCreate(savedInstanceState)
         setContent {
             val readedMsg by nfcViewModel.readedMsg.observeAsState("No data")
 
@@ -74,6 +78,38 @@ class MainActivity : ComponentActivity() {
                 }
             }
             AppNavGraph(navController = navController, readedMsg, startDestination)
+        }
+
+        // Track is player inside the playing zone
+        locationViewModel.isOutsideZone.observe(this) { isOutside ->
+            if (isOutside) {
+                NotificationUtils.showLocationNotification(this, "You are out of zone!")
+            } else {
+                Log.d("LocationViewModel", "You are inside the zone")
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        nfcAdapter?.disableForegroundDispatch(this)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleNfcIntent(intent)
+    }
+
+    private fun handleNfcIntent(intent: Intent) {
+        if (NfcAdapter.ACTION_TAG_DISCOVERED == intent.action) {
+            val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
+            nfcViewModel.setTagToWrite(intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG))
+            if (rawMessages != null) {
+                val messages: Array<NdefMessage> =
+                    rawMessages.map { it as NdefMessage }.toTypedArray()
+                val text = extractTextFromMessage(messages)
+                nfcViewModel.setReadedMsg(text)
+            }
         }
     }
 
@@ -101,46 +137,24 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
     private fun disableNfcForegroundDispatch() {
         nfcAdapter?.disableForegroundDispatch(this)
     }
 
 
-    override fun onPause() {
-        super.onPause()
-        nfcAdapter?.disableForegroundDispatch(this)
-    }
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        handleIntent(intent)
-    }
-
-    private fun handleIntent(intent: Intent) {
-        if (NfcAdapter.ACTION_TAG_DISCOVERED == intent.action) {
-            val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
-            nfcViewModel.setTagToWrite(intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG))
-            if (rawMessages != null) {
-                val messages: Array<NdefMessage> =
-                    rawMessages.map { it as NdefMessage }.toTypedArray()
-                val text = readTextFromMessages(messages)
-                nfcViewModel.setReadedMsg(text)
-            }
-        }
-    }
-
-    private fun readTextFromMessages(messages: Array<NdefMessage>): String {
+    private fun extractTextFromMessage(messages: Array<NdefMessage>): String {
         for (message in messages) {
             for (record in message.records) {
                 if (record.tnf == NdefRecord.TNF_WELL_KNOWN && record.type.contentEquals(NdefRecord.RTD_TEXT)) {
-                    return readText(record)
+                    return decodeText(record)
                 }
             }
         }
         return ""
     }
 
-    private fun readText(record: NdefRecord): String {
+    private fun decodeText(record: NdefRecord): String {
         val payload = record.payload
         val textEncoding =
             if ((payload[0].toInt() and 128) == 0) Charset.forName("UTF-8") else Charset.forName("UTF-16")
@@ -177,11 +191,21 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Добавляем разрешение на камеру
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED
         ) {
             permissionsToRequest.add(Manifest.permission.CAMERA)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(
+                    activity,
+                    Manifest.permission.ACTIVITY_RECOGNITION
+                )
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                permissionsToRequest.add(Manifest.permission.ACTIVITY_RECOGNITION)
+            }
         }
 
         if (permissionsToRequest.isNotEmpty()) {
@@ -205,15 +229,6 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
-        }
-    }
-
-    fun startService() {
-        val serviceIntent = Intent(this, LocationService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent)
-        } else {
-            startService(serviceIntent)
         }
     }
 }
