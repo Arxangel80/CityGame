@@ -1,30 +1,23 @@
 package com.example.citygame
 
-import NFCViewModel
-import android.app.PendingIntent
+import NFCRaceViewModel
 import android.content.Intent
-import android.content.IntentFilter
-import android.nfc.NdefMessage
-import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
-import android.nfc.Tag
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.navigation.NavController
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.citygame.Notification.LocationViewModel
 import com.example.citygame.Notification.NotificationUtils
+import kotlinx.coroutines.launch
 import navigation.AppNavGraph
-import java.nio.charset.Charset
 
 
 enum class Screens() {
@@ -44,7 +37,7 @@ enum class Screens() {
 class MainActivity : ComponentActivity() {
     private var nfcAdapter: NfcAdapter? = null
     private lateinit var navController: NavHostController
-    private val nfcViewModel: NFCViewModel by viewModels()
+    private val nfcRaceViewModel: NFCRaceViewModel by viewModels()
     private lateinit var nfcHandler: NfcHandler
     private val locationViewModel by viewModels<LocationViewModel>()
 
@@ -61,23 +54,19 @@ class MainActivity : ComponentActivity() {
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
         nfcHandler = NfcHandler(this, nfcAdapter) { readMsg ->
-            nfcViewModel.setReadedMsg(readMsg)
+            nfcRaceViewModel.onNfcTagScanned(readMsg)
         }
 
         setContent {
             navController = rememberNavController()
 
             val currentBackStackEntry by navController.currentBackStackEntryAsState()
-
             LaunchedEffect(currentBackStackEntry?.destination?.route) {
-                if (currentBackStackEntry?.destination?.route == Screens.NFCQuest.name) {
-                    nfcHandler.enableForegroundDispatch()
-                } else {
-                    nfcHandler.disableForegroundDispatch()
-                }
+                nfcRaceViewModel.setCurrentRoute(currentBackStackEntry?.destination?.route)
             }
 
-            AppNavGraph(navController = navController, startDestination, nfcViewModel)
+
+            AppNavGraph(navController = navController, startDestination, nfcRaceViewModel)
         }
 
 
@@ -94,6 +83,20 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         nfcHandler.onNewIntent(intent)
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch {
+            nfcRaceViewModel.currentRoute.collect { route ->
+                if (route == Screens.NFCQuest.name) {
+                    nfcHandler.enableForegroundDispatch()
+                } else {
+                    nfcHandler.disableForegroundDispatch()
+                }
+            }
+        }
     }
 
     override fun onPause() {

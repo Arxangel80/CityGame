@@ -24,6 +24,8 @@ class NfcHandler(
                 onMessageRead(text)
             }
         }
+
+        enableForegroundDispatch()
     }
 
     fun enableForegroundDispatch() {
