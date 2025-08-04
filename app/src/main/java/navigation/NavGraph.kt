@@ -1,6 +1,7 @@
 package navigation
 
 import GestureQuestScreen
+import NFCViewModel
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -17,7 +18,11 @@ import com.example.citygame.quests.rleQuest.RLEQuestScreen
 import com.example.citygame.Screens
 
 @Composable
-fun AppNavGraph(navController: NavHostController, readedMsg: String, startDestination: String) {
+fun AppNavGraph(
+    navController: NavHostController,
+    startDestination: String,
+    nfcViewModel: NFCViewModel
+) {
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -66,7 +71,7 @@ fun AppNavGraph(navController: NavHostController, readedMsg: String, startDestin
             CardanGrilleQuest()
         }
         composable(route = Screens.NFCQuest.name) {
-            NFCQuest(readedMsg = readedMsg)
+            NFCQuest(nfcViewModel)
         }
         composable(route = Screens.FeedBack.name) {
             StatisticsScreen()
