@@ -1,4 +1,4 @@
-package com.example.citygame.Notification
+package com.example.citygame.notification
 
 import android.app.NotificationChannel
 import android.app.NotificationManager

@@ -1,4 +1,4 @@
-package com.example.citygame.main
+package com.example.citygame.mainQuest
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

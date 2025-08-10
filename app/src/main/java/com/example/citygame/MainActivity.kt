@@ -1,6 +1,5 @@
 package com.example.citygame
 
-import CompassScreen
 import NFCRaceViewModel
 import android.content.Intent
 import android.nfc.NfcAdapter
@@ -14,16 +13,18 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.citygame.LocationTracking.LocationViewModel
-import com.example.citygame.Notification.NotificationUtils
-import com.example.citygame.main.mainQuestNFCViewModel
+import com.example.citygame.locationManager.LocationManager
+import com.example.citygame.notification.LocationViewModel
+import com.example.citygame.notification.NotificationUtils
+import com.example.citygame.mainQuest.mainQuestNFCViewModel
+import com.example.citygame.nfcHandler.NfcHandler
 import navigation.AppNavGraph
 
 
 enum class Screens() {
     Login,
     Quests,
-    Main,
+    Map,
     RLEQuest,
     CipherQuest,
     GestureQuest,
@@ -31,7 +32,8 @@ enum class Screens() {
     NFCRaceQuest,
     Chat,
     FeedBack,
-    SuddenMessage
+    SuddenMessage,
+    CompassScreen
 }
 
 class MainActivity : ComponentActivity() {
@@ -45,13 +47,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Request for all permisions
+        // Request for all permisionss
         PermissionsHelper.requestAllImportantPermissions(this)
 
         // Get intent from console to start app from specific destination
         val startDestination =
             intent.getStringExtra("startDestination")
-                ?: Screens.Login.name // Only for Debug purposes
+                ?: Screens.CompassScreen.name // Only for Debug purposes
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
         nfcHandler = NfcHandler(
@@ -64,25 +66,8 @@ class MainActivity : ComponentActivity() {
             }
         )
 
-        setContent {
-            navController = rememberNavController()
-
-            val currentBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentRoute = currentBackStackEntry?.destination?.route
-            LaunchedEffect(currentRoute) {
-                nfcHandler.updateCurrentRoute(currentRoute)
-
-                if (currentRoute == Screens.NFCRaceQuest.name || currentRoute == Screens.Main.name) {
-                    nfcHandler.enableForegroundDispatch()
-                } else {
-                    nfcHandler.disableForegroundDispatch()
-                }
-            }
-
-
-            AppNavGraph(navController = navController, startDestination, nfcRaceViewModel)
-        }
-
+        // Start tracking location
+        LocationManager.startLocationTracking(this)
 
         // Track is player inside the playing zone
         locationViewModel.isOutsideZone.observe(this) { isOutside ->
@@ -91,6 +76,25 @@ class MainActivity : ComponentActivity() {
             } else {
                 Log.d("LocationViewModel", "You are inside the zone")
             }
+        }
+
+        setContent {
+            navController = rememberNavController()
+
+            val currentBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = currentBackStackEntry?.destination?.route
+            LaunchedEffect(currentRoute) {
+                nfcHandler.updateCurrentRoute(currentRoute)
+
+                if (currentRoute == Screens.NFCRaceQuest.name || currentRoute == Screens.Map.name) {
+                    nfcHandler.enableForegroundDispatch()
+                } else {
+                    nfcHandler.disableForegroundDispatch()
+                }
+            }
+
+
+            AppNavGraph(navController = navController, startDestination, nfcRaceViewModel)
         }
     }
 
@@ -109,5 +113,10 @@ class MainActivity : ComponentActivity() {
     override fun onPause() {
         super.onPause()
         nfcAdapter?.disableForegroundDispatch(this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        LocationManager.stopLocationUpdates()
     }
 }

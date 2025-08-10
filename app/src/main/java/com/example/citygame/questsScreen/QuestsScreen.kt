@@ -1,4 +1,4 @@
-package com.example.citygame.QuestsScreen
+package com.example.citygame.questsScreen
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -36,7 +36,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.citygame.CityGameApp
 
 
 @Composable

@@ -1,7 +1,5 @@
 package com.example.citygame.quests.cipherQuest
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,51 +9,42 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
+import com.example.citygame.locationManager.LocationManager
 import com.google.android.gms.maps.model.LatLng
 import kotlin.math.sqrt
 import kotlin.random.Random
 
 @Composable
 fun CipherScreen() {
-    var location by remember { mutableStateOf(LatLng(0.0, 0.0)) }
-    val content = LocalContext.current
+    val defaultLocation = LatLng(52.40013034832539, 16.955722716173344)
+    val location by LocationManager.locationFlow.collectAsState(initial = defaultLocation)
 
     val destinationCoordinates = LatLng(52.399181, 16.955630)
 
-    val decrypted_text = "Hello world! Thats my cipher quest! Keep going, you are on the right way!"
+    val decryptedText = "Hello world! That's my cipher quest! Keep going, you are on the right way!"
     var text by remember { mutableStateOf("") }
 
-    var distance by remember { mutableStateOf(0.0) }
+    var distance by remember { mutableDoubleStateOf(0.0) }
 
-    startLocationUpdates(content) { newLocation ->
-        if (newLocation != location) {
-            location = newLocation
-            text = encryptTextBasedOnDistance(decrypted_text, destinationCoordinates, location, 40)
+    LaunchedEffect(location) {
+        location?.let { newLocation ->
+            text =
+                encryptTextBasedOnDistance(decryptedText, destinationCoordinates, newLocation, 40)
 
-            val latitudeDest = destinationCoordinates.latitude
-            val longitudeDest = destinationCoordinates.longitude
-            val latitudeCurrent = location.latitude
-            val longitudeCurrent = location.longitude
-
-
-            val x = (latitudeCurrent - latitudeDest) * 111320
-            val y = (longitudeCurrent - longitudeDest) * 111320
-
+            val x = (newLocation.latitude - destinationCoordinates.latitude) * 111320
+            val y = (newLocation.longitude - destinationCoordinates.longitude) * 111320
             distance = sqrt(x * x + y * y)
         }
     }
@@ -65,7 +54,7 @@ fun CipherScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CipherDrawer(text: String, location: LatLng, distance: Double) {
+fun CipherDrawer(text: String, location: LatLng?, distance: Double) {
     Column(verticalArrangement = Arrangement.Center) {
         Text(
             modifier = Modifier.fillMaxWidth(),
@@ -77,14 +66,14 @@ fun CipherDrawer(text: String, location: LatLng, distance: Double) {
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             modifier = Modifier.fillMaxWidth(),
-            text = "Latitude: " + location.latitude.toString(),
+            text = "Latitude: " + location?.latitude.toString(),
             fontSize = 30.sp,
             color = Color.Black,
             textAlign = TextAlign.Center
         )
         Text(
             modifier = Modifier.fillMaxWidth(),
-            text = "Longitude: " + location.longitude.toString(),
+            text = "Longitude: " + location?.longitude.toString(),
             fontSize = 30.sp,
             color = Color.Black,
             textAlign = TextAlign.Center
@@ -99,36 +88,6 @@ fun CipherDrawer(text: String, location: LatLng, distance: Double) {
     }
 }
 
-@SuppressLint("MissingPermission")
-fun startLocationUpdates(context: Context, onLocationFetched: (location: LatLng) -> Unit) {
-    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-
-    val locationRequest = LocationRequest.Builder(
-        Priority.PRIORITY_BALANCED_POWER_ACCURACY, // Requests a tradeoff that is balanced between location accuracy and power usage.
-        10000L // Minimum time interval between location updates (in milliseconds)
-    ).setMinUpdateIntervalMillis(5000L)
-        .setMinUpdateDistanceMeters(1F)
-        .build()
-
-    val locationCallback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult) {
-            for (location in locationResult.locations) {
-                if (location != null) {
-                    val latitude = location.latitude
-                    val longitude = location.longitude
-                    val loc = LatLng(latitude, longitude)
-                    onLocationFetched(loc)
-                }
-            }
-        }
-    }
-
-    fusedLocationClient.requestLocationUpdates(
-        locationRequest,
-        locationCallback,
-        null
-    )
-}
 
 fun randomCharForType(text: String): String {
     val randomText = text.map { char ->
@@ -144,16 +103,16 @@ fun randomCharForType(text: String): String {
 
 fun encryptTextBasedOnDistance(
     text: String,
-    destCoords: LatLng,
-    currentCoords: LatLng,
-    DecryptionDistance: Int
+    destCords: LatLng,
+    currentCords: LatLng,
+    decryptionDistance: Int
 ): String {
     // Extracting latitude and longitude from desired coordinates
-    val latitudeDest = destCoords.latitude
-    val longitudeDest = destCoords.longitude
+    val latitudeDest = destCords.latitude
+    val longitudeDest = destCords.longitude
     // Extracting latitude and longitude from desired current coordinates
-    val latitudeCurrent = currentCoords.latitude
-    val longitudeCurrent = currentCoords.longitude
+    val latitudeCurrent = currentCords.latitude
+    val longitudeCurrent = currentCords.longitude
 
     // Calculate the difference in coordinates and convert to meters (approximate conversion)
     val x = (latitudeCurrent - latitudeDest) * 111320
@@ -162,13 +121,13 @@ fun encryptTextBasedOnDistance(
     // Calculate the Euclidean distance between the current and destination coordinates
     val distance = sqrt(x * x + y * y)
 
-    val max_distance =
+    val maxDistance =
         600 // Define a maximum distance beyond which the entire text will be encrypted
-    if (distance <= DecryptionDistance) return text // If the current distance is within the decryption distance, return the original text
-    else if (distance >= max_distance) return randomCharForType(text) // If the current distance is beyond the maximum distance, fully encrypt the text
+    if (distance <= decryptionDistance) return text // If the current distance is within the decryption distance, return the original text
+    else if (distance >= maxDistance) return randomCharForType(text) // If the current distance is beyond the maximum distance, fully encrypt the text
 
     // Calculate the proportion of text to encrypt based on how far the distance is beyond the DecryptionDistance
-    val distanceToMinDistance = (distance - DecryptionDistance) / distance
+    val distanceToMinDistance = (distance - decryptionDistance) / distance
     val charToCipher = (text.length * distanceToMinDistance).toInt()
     Log.d("charToCipher", charToCipher.toString())
 
@@ -179,6 +138,8 @@ fun encryptTextBasedOnDistance(
     } else {
         text // If no characters need to be encrypted, return the original text
     }
+
+    //-\frac{x}{3}+30
 
     return encryptedText
 }

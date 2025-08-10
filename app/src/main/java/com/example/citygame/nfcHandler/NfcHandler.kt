@@ -1,4 +1,4 @@
-package com.example.citygame
+package com.example.citygame.nfcHandler
 
 import android.app.Activity
 import android.app.PendingIntent
@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
+import com.example.citygame.Screens
 import java.nio.charset.Charset
 
 class NfcHandler(
@@ -34,7 +35,7 @@ class NfcHandler(
                             onRaceTagScanned(text)
                         }
 
-                        Screens.Main.name -> {
+                        Screens.Map.name -> {
                             onMainTagScanned(text)
                         }
 

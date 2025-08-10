@@ -1,4 +1,4 @@
-package com.example.citygame.QuestsScreen
+package com.example.citygame.questsScreen
 
 import android.app.Application
 import androidx.compose.runtime.State

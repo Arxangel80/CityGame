@@ -1,7 +1,9 @@
 package navigation
 
+import CompassScreen
 import GestureQuestScreen
 import NFCRaceViewModel
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -13,10 +15,11 @@ import com.example.citygame.feedback.StatisticsScreen
 import com.example.citygame.auth.LoginScreen
 import com.example.citygame.MainScreen
 import com.example.citygame.quests.nfcQuest.NFCRaceQuest
-import com.example.citygame.QuestsScreen.QuestsScreen
+import com.example.citygame.questsScreen.QuestsScreen
 import com.example.citygame.quests.rleQuest.RLEQuestScreen
 import com.example.citygame.Screens
 
+@SuppressLint("MissingPermission")
 @Composable
 fun AppNavGraph(
     navController: NavHostController,
@@ -35,12 +38,12 @@ fun AppNavGraph(
             })
         }
         composable(route = Screens.Quests.name) {
-            QuestsScreen(navigateToMain = { navController.navigate(Screens.Main.name) })
+            QuestsScreen(navigateToMain = { navController.navigate(Screens.Map.name) })
         }
         composable(route = Screens.FeedBack.name) {
             StatisticsScreen()
         }
-        composable(route = Screens.Main.name) {
+        composable(route = Screens.Map.name) @androidx.annotation.RequiresPermission(allOf = [android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION]) {
             val navigateToQuestMap = mapOf(
                 "RLE Quest" to { navController.navigate(Screens.RLEQuest.name) },
                 "Cipher Quest" to { navController.navigate(Screens.CipherQuest.name) },
@@ -75,6 +78,18 @@ fun AppNavGraph(
         }
         composable(route = Screens.FeedBack.name) {
             StatisticsScreen()
+        }
+        composable(route = Screens.FeedBack.name) {
+            StatisticsScreen()
+        }
+        composable(route = Screens.CompassScreen.name) {
+            val targetLatitude = 55.7558
+            val targetLongitude = 37.6173
+
+            CompassScreen(
+                targetLatitude = targetLatitude,
+                targetLongitude = targetLongitude
+            )
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.example.citygame
 
+import android.Manifest
+import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +22,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,7 +35,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.citygame.LocationTracking.LocationManager.getCurrentLocation
+import com.example.citygame.locationManager.LocationManager
+import com.example.citygame.locationManager.LocationManager.getLastLocation
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -81,6 +85,7 @@ fun QuestMarker(quest: Quest, navTo: () -> Unit) {
     )
 }
 
+@RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
 @Composable
 fun MainScreen(
     navToQuestsMap: Map<String, () -> Unit>,
@@ -100,65 +105,65 @@ fun MainScreen(
 
 }
 
+@RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
 @Composable
 fun MainDrawer(
     navToQuestsMap: Map<String, () -> Unit>,
     navToChat: () -> Unit,
     navToStats: () -> Unit
 ) {
-    var showMap by remember { mutableStateOf(false) }
-    var location by remember { mutableStateOf(LatLng(0.0, 0.0)) }
-    val content = LocalContext.current
+    val defaultLocation = LatLng(52.40013034832539, 16.955722716173344)
+    var lastLocation by remember { mutableStateOf<LatLng?>(defaultLocation) }
+    val location by LocationManager.locationFlow.collectAsState(initial = null)
+    val context = LocalContext.current
 
-
-    // Get the last known location
-    getCurrentLocation(content) {
-        location = it
-        showMap = true
+    LaunchedEffect(Unit) {
+        getLastLocation(
+            context = context,
+            onSuccess = { lastLocation = it },
+            onNullLocation = { lastLocation = defaultLocation },
+            onFailure = { lastLocation = defaultLocation }
+        )
     }
 
-    Box(contentAlignment = Alignment.BottomStart, modifier = Modifier.fillMaxSize()) {
-        if (showMap) {
-            Column {
-                val cameraPositionState = rememberCameraPositionState {
-                    position = CameraPosition.fromLatLngZoom(location, 16f)
-                }
 
-                val uiSettings by remember {
-                    mutableStateOf(
-                        MapUiSettings(
-                            myLocationButtonEnabled = true,
-                            zoomControlsEnabled = false
-                        )
+    Box(contentAlignment = Alignment.BottomStart, modifier = Modifier.fillMaxSize()) {
+        Column {
+            val cameraPositionState = rememberCameraPositionState {
+                position = CameraPosition.fromLatLngZoom(location ?: lastLocation!!, 16f)
+            }
+
+            val uiSettings by remember {
+                mutableStateOf(
+                    MapUiSettings(
+                        myLocationButtonEnabled = true,
+                        zoomControlsEnabled = false
+                    )
+                )
+            }
+
+            GoogleMap(
+                cameraPositionState = cameraPositionState,
+                properties = MapProperties(isMyLocationEnabled = true),
+                uiSettings = uiSettings,
+                onMyLocationButtonClick = {
+                    cameraPositionState.position =
+                        CameraPosition.fromLatLngZoom(location ?: lastLocation!!, 16f)
+                    true
+                }
+            ) {
+                navToQuestsMap["NFC Quest"]?.let { QuestMarker(Quests.NFCQuest, it) }
+                navToQuestsMap["RLE Quest"]?.let { QuestMarker(Quests.RLEQuest, it) }
+                navToQuestsMap["Cipher Quest"]?.let { QuestMarker(Quests.CipherQuest, it) }
+                navToQuestsMap["Gesture Quest"]?.let { QuestMarker(Quests.GestureQuest, it) }
+                navToQuestsMap["Cardan Grille Quest"]?.let {
+                    QuestMarker(
+                        Quests.CardanGrilleQuest,
+                        it
                     )
                 }
+                navToQuestsMap["Sudden Message"]?.let { QuestMarker(Quests.SudeenMessage, it) }
 
-                GoogleMap(
-                    cameraPositionState = cameraPositionState,
-                    properties = MapProperties(isMyLocationEnabled = true),
-                    uiSettings = uiSettings,
-                    onMyLocationButtonClick = {
-                        getCurrentLocation(content) {
-                            location = it
-                            showMap = true
-                        }
-                        cameraPositionState.position = CameraPosition.fromLatLngZoom(location, 16f)
-                        true
-                    }
-                ) {
-                    navToQuestsMap["NFC Quest"]?.let { QuestMarker(Quests.NFCQuest, it) }
-                    navToQuestsMap["RLE Quest"]?.let { QuestMarker(Quests.RLEQuest, it) }
-                    navToQuestsMap["Cipher Quest"]?.let { QuestMarker(Quests.CipherQuest, it) }
-                    navToQuestsMap["Gesture Quest"]?.let { QuestMarker(Quests.GestureQuest, it) }
-                    navToQuestsMap["Cardan Grille Quest"]?.let {
-                        QuestMarker(
-                            Quests.CardanGrilleQuest,
-                            it
-                        )
-                    }
-                    navToQuestsMap["Sudden Message"]?.let { QuestMarker(Quests.SudeenMessage, it) }
-
-                }
             }
         }
         BottomPullOutMenu(navToQuestsMap)
@@ -172,8 +177,8 @@ fun MainDrawer(
         {
             Column {
                 Text("Current coordinates:")
-                Text("Longitude: ${location.longitude}")
-                Text("Latitude: ${location.latitude}")
+                Text("Longitude: ${location?.longitude ?: lastLocation!!.longitude}")
+                Text("Latitude: ${location?.latitude ?: lastLocation!!.latitude}")
 
                 Button(onClick = {
                     navToStats()
