@@ -21,6 +21,15 @@ class GestureViewModel(application: Application) : AndroidViewModel(application)
     private var imageAnalyzer: ImageAnalysis? = null
     private val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
 
+    private val gestureRecognizer = GestureRecognizer(
+        context = context,
+        onResult = { onGestureRecognized(it) },
+        onError = { error, _ -> { Log.e("gestureRecognizer", error) } }
+    )
+
+    val preview = Preview.Builder().build()
+    var previewView: PreviewView? = null
+
     val recognizedGesture = MutableStateFlow("No gesture recognized")
     val recognizedGestures = mutableListOf<String>()
     val recognizedGesturesUI = mutableStateOf<List<String>>(emptyList())
@@ -31,7 +40,9 @@ class GestureViewModel(application: Application) : AndroidViewModel(application)
     fun onGestureRecognized(gesture: String) {
         recognizedGesture.value = gesture
         if (gesture != "None") {
-            Log.i("GestureQuest", recognizedGestures.toString())
+            if (BuildConfig.DEBUG) {
+                Log.i("GestureQuest", recognizedGestures.toString())
+            }
 
             if (lastGesture != gesture) {
                 lastGesture = gesture
@@ -41,7 +52,9 @@ class GestureViewModel(application: Application) : AndroidViewModel(application)
                     delay(2000L)
                     recognizedGestures.add(gesture)
                     recognizedGesturesUI.value = recognizedGesturesUI.value + gesture
-                    Log.i("Gesture", "Added after delay: $gesture")
+                    if (BuildConfig.DEBUG) {
+                        Log.i("Gesture", "Added after delay: $gesture")
+                    }
                     lastGesture = "None"
                 }
             }
@@ -49,15 +62,6 @@ class GestureViewModel(application: Application) : AndroidViewModel(application)
             lastGestureJob?.cancel()
         }
     }
-
-    private val gestureRecognizer = GestureRecognizer(
-        context = context,
-        onResult = { onGestureRecognized(it) },
-        onError = { error, _ -> { Log.e("gestureRecognizer", error) } }
-    )
-
-    val preview = Preview.Builder().build()
-    var previewView: PreviewView? = null
 
     fun startCamera(previewView: PreviewView, lifecycleOwner: LifecycleOwner) {
         this.previewView = previewView

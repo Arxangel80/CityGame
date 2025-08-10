@@ -18,13 +18,6 @@ class NFCRaceViewModel : ViewModel() {
         _readedMsg.value = msg
     }
 
-    private val _currentRoute = MutableStateFlow<String?>(null)
-    val currentRoute: StateFlow<String?> = _currentRoute.asStateFlow()
-
-    fun setCurrentRoute(route: String?) {
-        _currentRoute.value = route
-    }
-
     private val checkpoints = listOf("NFC1", "NFC2", "NFC3", "NFC4")
     private val CHECKPOINT_TIMERS = listOf(
         30,  // Time from NFC1 to NFC2
@@ -43,7 +36,7 @@ class NFCRaceViewModel : ViewModel() {
     private val _toastEvent = MutableSharedFlow<String>()
     val toastEvent: SharedFlow<String> = _toastEvent
 
-    fun onNfcTagScanned(tagContent: String) {
+    fun onNFCTagScanned(tagContent: String) {
         setReadedMsg(tagContent)
 
         val index = _currentCheckpointIndex.value ?: 0
@@ -105,3 +98,4 @@ class NFCRaceViewModel : ViewModel() {
         stopTimer()
     }
 }
+

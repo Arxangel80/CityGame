@@ -1,4 +1,4 @@
-package com.example.citygame
+package com.example.citygame.LocationTracking
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -10,7 +10,7 @@ import com.google.android.gms.maps.model.LatLng
 
 object LocationManager {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-
+    
     @SuppressLint("MissingPermission")
     fun getCurrentLocation(context: Context, onLocationFetched: (LatLng) -> Unit) {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)

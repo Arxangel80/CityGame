@@ -65,6 +65,7 @@ dependencies {
     val camerax_version = "1.3.3"
     val lifecycle_version = "2.8.2"
     implementation("androidx.compose.material:material-icons-extended:1.6.7")
+    implementation("androidx.compose.material:material:1.8.3")
 
     implementation("com.google.mediapipe:tasks-vision:latest.release")
 

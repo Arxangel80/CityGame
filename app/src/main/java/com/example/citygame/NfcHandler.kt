@@ -12,8 +12,14 @@ import java.nio.charset.Charset
 class NfcHandler(
     private val activity: Activity,
     private val nfcAdapter: NfcAdapter?,
-    private val onMessageRead: (String) -> Unit
+    private val onRaceTagScanned: (String) -> Unit,
+    private val onMainTagScanned: (String) -> Unit
 ) {
+    var currentRoute: String? = null
+
+    fun updateCurrentRoute(route: String?) {
+        currentRoute = route
+    }
 
     fun onNewIntent(intent: Intent) {
         if (intent.action == NfcAdapter.ACTION_TAG_DISCOVERED) {
@@ -21,7 +27,23 @@ class NfcHandler(
             if (rawMessages != null) {
                 val messages = rawMessages.mapNotNull { it as? NdefMessage }.toTypedArray()
                 val text = extractTextFromMessages(messages)
-                onMessageRead(text)
+
+                if (text.isNotBlank()) {
+                    when (currentRoute) {
+                        Screens.NFCRaceQuest.name -> {
+                            onRaceTagScanned(text)
+                        }
+
+                        Screens.Main.name -> {
+                            onMainTagScanned(text)
+                        }
+
+                        else -> {
+
+                        }
+                    }
+                }
+
             }
         }
 

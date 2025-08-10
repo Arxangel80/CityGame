@@ -1,4 +1,4 @@
-package com.example.citygame.Notification
+package com.example.citygame.LocationTracking
 
 import android.app.Application
 import android.location.Location
@@ -7,7 +7,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.citygame.LocationManager
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive

@@ -46,7 +46,7 @@ fun AppNavGraph(
                 "Cipher Quest" to { navController.navigate(Screens.CipherQuest.name) },
                 "Gesture Quest" to { navController.navigate(Screens.GestureQuest.name) },
                 "Cardan Grille Quest" to { navController.navigate(Screens.CardanGrilleQuest.name) },
-                "NFC Quest" to { navController.navigate(Screens.NFCQuest.name) },
+                "NFC Quest" to { navController.navigate(Screens.NFCRaceQuest.name) },
                 "SuddenMessage Quest" to { navController.navigate(Screens.SuddenMessage.name) }
             )
             MainScreen(
@@ -70,7 +70,7 @@ fun AppNavGraph(
         composable(route = Screens.CardanGrilleQuest.name) {
             CardanGrilleQuest()
         }
-        composable(route = Screens.NFCQuest.name) {
+        composable(route = Screens.NFCRaceQuest.name) {
             NFCRaceQuest(nfcRaceViewModel)
         }
         composable(route = Screens.FeedBack.name) {
