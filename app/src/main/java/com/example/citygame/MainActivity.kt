@@ -14,9 +14,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.citygame.locationManager.LocationManager
+import com.example.citygame.mainQuest.MainQuestNFCViewModel
 import com.example.citygame.notification.LocationViewModel
 import com.example.citygame.notification.NotificationUtils
-import com.example.citygame.mainQuest.mainQuestNFCViewModel
 import com.example.citygame.nfcHandler.NfcHandler
 import navigation.AppNavGraph
 
@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
     private var nfcAdapter: NfcAdapter? = null
     private lateinit var navController: NavHostController
     private val nfcRaceViewModel: NFCRaceViewModel by viewModels()
-    private val mainQuestNFCViewModel: mainQuestNFCViewModel by viewModels()
+    private val mainQuestNFCViewModel: MainQuestNFCViewModel by viewModels()
     private lateinit var nfcHandler: NfcHandler
     private val locationViewModel by viewModels<LocationViewModel>()
 

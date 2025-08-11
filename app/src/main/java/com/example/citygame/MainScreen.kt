@@ -46,23 +46,8 @@ import com.google.maps.android.compose.MarkerInfoWindow
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
-
-data class Quest(
-    val name: String,
-    val coordinates: LatLng
-)
-
-object Quests {
-    val NFCQuest = Quest("NFC Quest", LatLng(52.400395, 16.955508))
-    val RLEQuest = Quest("RLE Quest", LatLng(52.402395, 16.955508))
-    val CipherQuest = Quest("Cipher Quest", LatLng(52.404395, 16.955508))
-    val GestureQuest = Quest("Gesture quest", LatLng(52.406395, 16.955508))
-    val CardanGrilleQuest = Quest("Cardan grille quest", LatLng(52.408395, 16.955508))
-    val SudeenMessage = Quest("Sudden Message", LatLng(52.410395, 16.955508))
-}
-
 @Composable
-fun QuestMarker(quest: Quest, navTo: () -> Unit) {
+fun QuestMarker(quest: Quests.Quest, navTo: () -> Unit) {
     MarkerInfoWindow(
         state = MarkerState(position = quest.coordinates),
         title = quest.name,
@@ -162,8 +147,6 @@ fun MainDrawer(
                         it
                     )
                 }
-                navToQuestsMap["Sudden Message"]?.let { QuestMarker(Quests.SudeenMessage, it) }
-
             }
         }
         BottomPullOutMenu(navToQuestsMap)
@@ -220,29 +203,23 @@ fun ChatButton(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomPullOutMenu(navigateToMap: Map<String, () -> Unit>) {
-    val descriptionsList =
-        mapOf(
-            "RLE Quest" to "Solve the mystery of visual cypher using the principles of RLE",
-            "Cipher Quest" to "Solve the cipher with shifting your geoposition",
-            "Gesture Quest" to "Use your device camera to replicate a sequence gestures",
-            "Cardan Grille Quest" to "Use Cardan Grille to uncover a secret message in a text",
-            "NFC Quest" to "Find hidden NFC tags and read them with your device",
-            "Sudden Message" to "Get message"
-        )
     Box(modifier = Modifier.fillMaxWidth(0.8F)) {
         BottomSheetScaffold(
             modifier = Modifier.fillMaxWidth(0.5F),
             sheetContent = {
                 navigateToMap.forEach { (label, onClick) ->
-                    val description = descriptionsList[label]
+                    val description = Quests.getDescriptionForQuest(label)
                     if (description != null) {
-                        NavigationItem(label = label, description = description, onClick = onClick)
+                        NavigationItem(
+                            label = label,
+                            description = description,
+                            onClick = onClick
+                        )
                     }
                 }
             },
             sheetPeekHeight = BottomSheetDefaults.SheetPeekHeight,
-        ) {
-        }
+        ) {}
     }
 }
 
