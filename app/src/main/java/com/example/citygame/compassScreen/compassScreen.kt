@@ -54,8 +54,8 @@ fun CompassScreen(
 
             LocationInfo(
                 userLocation = userLocation,
-                targetLatitude = targetLatitude,
-                targetLongitude = targetLongitude,
+                targetLatitude = targetLatitude.toDouble(),
+                targetLongitude = targetLongitude.toDouble(),
                 azimuth = azimuth,
                 bearing = bearing,
                 modifier = Modifier.align(Alignment.BottomCenter)

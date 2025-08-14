@@ -27,7 +27,6 @@ class CompassViewModel(application: Application) : AndroidViewModel(application)
         context.getSystemService(SensorManager::class.java)
     }
 
-    // Состояние View
     private val _azimuth = mutableFloatStateOf(0f)
     val azimuth: State<Float> = _azimuth
 
@@ -36,7 +35,6 @@ class CompassViewModel(application: Application) : AndroidViewModel(application)
 
     private val _targetLocation = mutableStateOf(Location(""))
 
-    // Угол между севером и целью
     private val _bearing = mutableFloatStateOf(0f)
     val bearing: State<Float> = _bearing
 

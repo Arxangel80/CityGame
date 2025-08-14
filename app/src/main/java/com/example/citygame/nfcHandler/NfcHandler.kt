@@ -7,7 +7,7 @@ import android.content.IntentFilter
 import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
-import com.example.citygame.Screens
+import navigation.AppScreens
 import java.nio.charset.Charset
 
 class NfcHandler(
@@ -16,10 +16,10 @@ class NfcHandler(
     private val onRaceTagScanned: (String) -> Unit,
     private val onMainTagScanned: (String) -> Unit
 ) {
-    var currentRoute: String? = null
+    var currentScreenName: String? = null
 
     fun updateCurrentRoute(route: String?) {
-        currentRoute = route
+        currentScreenName = route
     }
 
     fun onNewIntent(intent: Intent) {
@@ -29,20 +29,13 @@ class NfcHandler(
                 val messages = rawMessages.mapNotNull { it as? NdefMessage }.toTypedArray()
                 val text = extractTextFromMessages(messages)
 
-                if (text.isNotBlank()) {
-                    when (currentRoute) {
-                        Screens.NFCRaceQuest.name -> {
-                            onRaceTagScanned(text)
-                        }
+                if (text.isBlank()) return
 
-                        Screens.Map.name -> {
-                            onMainTagScanned(text)
-                        }
-
-                        else -> {
-
-                        }
-                    }
+                when (currentScreenName) {
+                    AppScreens.NFCRaceQuest.NAME -> onRaceTagScanned(text)
+                    AppScreens.CompassScreen.NAME, AppScreens.WinScreen.NAME -> onMainTagScanned(
+                        text
+                    )
                 }
 
             }

@@ -1,16 +1,11 @@
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import android.os.CountDownTimer
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import com.example.citygame.BaseQuestViewModel
+import com.example.citygame.Quests
+import navigation.AppScreens
 
-class NFCRaceViewModel : ViewModel() {
+class NFCRaceViewModel : BaseQuestViewModel() {
     private var _readedMsg = MutableLiveData<String>()
     val readedMsg = _readedMsg
 
@@ -33,9 +28,6 @@ class NFCRaceViewModel : ViewModel() {
 
     private var timer: CountDownTimer? = null
 
-    private val _toastEvent = MutableSharedFlow<String>()
-    val toastEvent: SharedFlow<String> = _toastEvent
-
     fun onNFCTagScanned(tagContent: String) {
         setReadedMsg(tagContent)
 
@@ -50,7 +42,7 @@ class NFCRaceViewModel : ViewModel() {
             } else {
                 _currentCheckpointIndex.value = checkpoints.size
                 stopTimer()
-                onWin()
+                win()
             }
         }
     }
@@ -66,27 +58,23 @@ class NFCRaceViewModel : ViewModel() {
             }
 
             override fun onFinish() {
-                onLose()
+                lose()
             }
         }.start()
     }
 
-    fun onLose() {
-        viewModelScope.launch {
-            _timeLeft.value = 0
-            _toastEvent.emit(
-                "Вы не успели — вы лох 😢 \n Начинайте заново",
-            )
-        }
+    fun win() {
+        onWin(
+            nextQuestFinished = { Quests.MainQuest1.miniQuest.isFinished = true },
+            navigateTo = AppScreens.WinScreen.NAME,
+            toast = "Вы успели — вы не лох 😎 \n Идите на следующий квест "
+        )
     }
 
-    fun onWin() {
-        viewModelScope.launch {
-            _timeLeft.value = 0
-            _toastEvent.emit(
-                "Вы успели — вы не лох 😎 \n Идите на следующий квест ",
-            )
-        }
+    fun lose() {
+        onLose(
+            toast = "Вы не успели — вы лох 😢 \n Начинайте заново"
+        )
     }
 
     private fun stopTimer() {

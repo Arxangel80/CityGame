@@ -6,9 +6,10 @@ import NFCRaceViewModel
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.citygame.quests.cardianQuest.CardanGrilleQuest
+import androidx.navigation.navArgument
 import com.example.citygame.chat.ChatScreen
 import com.example.citygame.quests.cipherQuest.CipherScreen
 import com.example.citygame.feedback.StatisticsScreen
@@ -17,7 +18,11 @@ import com.example.citygame.MainScreen
 import com.example.citygame.quests.nfcQuest.NFCRaceQuest
 import com.example.citygame.questsScreen.QuestsScreen
 import com.example.citygame.quests.rleQuest.RLEQuestScreen
-import com.example.citygame.Screens
+import com.example.citygame.HintScreen
+import com.example.citygame.Quests
+import com.example.citygame.WelcomeScreen
+import com.example.citygame.WinScreen
+import com.example.citygame.quests.colorFiltersQuest.ColorFiltersQuest
 
 @SuppressLint("MissingPermission")
 @Composable
@@ -30,66 +35,105 @@ fun AppNavGraph(
         navController = navController,
         startDestination = startDestination
     ) {
-        composable(route = Screens.Login.name) {
+        composable(route = AppScreens.Login.NAME) {
             LoginScreen(onNextButtonClicked = {
-                navController.navigate(Screens.Quests.name) {
+                navController.navigate(AppScreens.Quests.NAME) {
                     popUpTo(0)
                 }
             })
         }
-        composable(route = Screens.Quests.name) {
-            QuestsScreen(navigateToMain = { navController.navigate(Screens.Map.name) })
+        composable(route = AppScreens.Quests.NAME) {
+            QuestsScreen(navigateToMain = { navController.navigate(AppScreens.Welcome.NAME) })
         }
-        composable(route = Screens.FeedBack.name) {
-            StatisticsScreen()
+        composable(route = AppScreens.Welcome.NAME) {
+            WelcomeScreen(onClick = {
+                val quest = Quests.MainQuest1
+                val coordinates = quest.coordinates
+                val targetLatitude = coordinates.latitude.toFloat()
+                val targetLongitude = coordinates.longitude.toFloat()
+
+                navController.navigate(
+                    AppScreens.CompassScreen.route(
+                        targetLatitude,
+                        targetLongitude
+                    )
+                )
+            })
         }
-        composable(route = Screens.Map.name) @androidx.annotation.RequiresPermission(allOf = [android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION]) {
+        composable(route = AppScreens.MapScreen.NAME) @androidx.annotation.RequiresPermission(allOf = [android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION]) {
             val navigateToQuestMap = mapOf(
-                "RLE Quest" to { navController.navigate(Screens.RLEQuest.name) },
-                "Cipher Quest" to { navController.navigate(Screens.CipherQuest.name) },
-                "Gesture Quest" to { navController.navigate(Screens.GestureQuest.name) },
-                "Cardan Grille Quest" to { navController.navigate(Screens.CardanGrilleQuest.name) },
-                "NFC Quest" to { navController.navigate(Screens.NFCRaceQuest.name) },
-                "SuddenMessage Quest" to { navController.navigate(Screens.SuddenMessage.name) }
+                "RLE Quest" to { navController.navigate(AppScreens.RLEQuest.NAME) },
+                "Cipher Quest" to { navController.navigate(AppScreens.CipherQuest.NAME) },
+                "Gesture Quest" to { navController.navigate(AppScreens.GestureQuest.NAME) },
+                "Color Filter Quest" to { navController.navigate(AppScreens.ColorFilterQuest.NAME) },
+                "NFC Quest" to { navController.navigate(AppScreens.NFCRaceQuest.NAME) },
             )
             MainScreen(
                 navigateToQuestMap,
-                navToChat = { navController.navigate(Screens.Chat.name) },
-                navToStats = { navController.navigate(Screens.FeedBack.name) }
+                navToChat = { navController.navigate(AppScreens.ChatScreen.NAME) },
+                navToStats = { navController.navigate(AppScreens.FeedBackScreen.NAME) }
             )
         }
-        composable(route = Screens.Chat.name) {
+        composable(route = AppScreens.ChatScreen.NAME) {
             ChatScreen()
         }
-        composable(route = Screens.RLEQuest.name) {
+        composable(route = AppScreens.RLEQuest.NAME) {
             RLEQuestScreen(8, 8)
         }
-        composable(route = Screens.CipherQuest.name) {
+        composable(route = AppScreens.CipherQuest.NAME) {
             CipherScreen()
         }
-        composable(route = Screens.GestureQuest.name) {
+        composable(route = AppScreens.GestureQuest.NAME) {
             GestureQuestScreen()
         }
-        composable(route = Screens.CardanGrilleQuest.name) {
-            CardanGrilleQuest()
+        composable(route = AppScreens.ColorFilterQuest.NAME) {
+            ColorFiltersQuest(navController = navController)
         }
-        composable(route = Screens.NFCRaceQuest.name) {
-            NFCRaceQuest(nfcRaceViewModel)
+        composable(route = AppScreens.NFCRaceQuest.NAME) {
+            NFCRaceQuest(nfcRaceViewModel, navController)
         }
-        composable(route = Screens.FeedBack.name) {
-            StatisticsScreen()
-        }
-        composable(route = Screens.FeedBack.name) {
-            StatisticsScreen()
-        }
-        composable(route = Screens.CompassScreen.name) {
-            val targetLatitude = 55.7558
-            val targetLongitude = 37.6173
+        composable(
+            route = AppScreens.CompassScreen.ROUTE_WITH_ARGS,
+            arguments = listOf(
+                navArgument("latitude") { type = NavType.FloatType },
+                navArgument("longitude") { type = NavType.FloatType }
+            )
+        ) { backStackEntry ->
+            val latitude = backStackEntry.arguments?.getFloat("latitude")?.toDouble() ?: 0.0
+            val longitude = backStackEntry.arguments?.getFloat("longitude")?.toDouble() ?: 0.0
 
-            CompassScreen(
-                targetLatitude = targetLatitude,
-                targetLongitude = targetLongitude
+            CompassScreen(targetLatitude = latitude, targetLongitude = longitude)
+        }
+
+        composable(route = AppScreens.FeedBackScreen.NAME) {
+            StatisticsScreen()
+        }
+        composable(route = AppScreens.WinScreen.NAME) {
+            WinScreen()
+        }
+        // HintScreen
+        composable(
+            route = AppScreens.HintScreen.ROUTE_WITH_ARGS,
+            arguments = listOf(
+                navArgument("hint") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val hint = backStackEntry.arguments?.getString("hint") ?: ""
+
+            HintScreen(
+                hint = hint,
+                onClick = {
+                    Quests.mainQuests.first { it.miniQuest.isFinished }.let { nextQuest ->
+                        navController.navigate(
+                            AppScreens.CompassScreen.route(
+                                nextQuest.coordinates.latitude.toFloat(),
+                                nextQuest.coordinates.longitude.toFloat()
+                            )
+                        )
+                    }
+                }
             )
         }
     }
 }
+

@@ -5,11 +5,13 @@ import android.content.Intent
 import android.nfc.NfcAdapter
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -19,22 +21,8 @@ import com.example.citygame.notification.LocationViewModel
 import com.example.citygame.notification.NotificationUtils
 import com.example.citygame.nfcHandler.NfcHandler
 import navigation.AppNavGraph
+import navigation.AppScreens
 
-
-enum class Screens() {
-    Login,
-    Quests,
-    Map,
-    RLEQuest,
-    CipherQuest,
-    GestureQuest,
-    CardanGrilleQuest,
-    NFCRaceQuest,
-    Chat,
-    FeedBack,
-    SuddenMessage,
-    CompassScreen
-}
 
 class MainActivity : ComponentActivity() {
     private var nfcAdapter: NfcAdapter? = null
@@ -52,8 +40,8 @@ class MainActivity : ComponentActivity() {
 
         // Get intent from console to start app from specific destination
         val startDestination =
-            intent.getStringExtra("startDestination")
-                ?: Screens.CompassScreen.name // Only for Debug purposes
+            intent.getStringExtra("startDestination") // Only for Debug purposes
+                ?: AppScreens.Login.NAME
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
         nfcHandler = NfcHandler(
@@ -79,20 +67,38 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
+            val context = LocalContext.current
             navController = rememberNavController()
 
             val currentBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentRoute = currentBackStackEntry?.destination?.route
-            LaunchedEffect(currentRoute) {
-                nfcHandler.updateCurrentRoute(currentRoute)
+            val currentScreenName = currentBackStackEntry?.destination?.route?.let { route ->
+                route.substringBefore('/') // Только имя экрана
+            } ?: ""
 
-                if (currentRoute == Screens.NFCRaceQuest.name || currentRoute == Screens.Map.name) {
+
+            LaunchedEffect(currentScreenName) {
+                nfcHandler.updateCurrentRoute(currentScreenName)
+
+                if (currentScreenName == AppScreens.NFCRaceQuest.NAME || currentScreenName == AppScreens.CompassScreen.NAME || currentScreenName == AppScreens.WinScreen.NAME) {
                     nfcHandler.enableForegroundDispatch()
                 } else {
                     nfcHandler.disableForegroundDispatch()
                 }
             }
 
+            // Processing navigation events
+            LaunchedEffect(Unit) {
+                mainQuestNFCViewModel.navigationEvent.collect { route ->
+                    navController.navigate(route)
+                }
+            }
+
+            // Processing toast messages
+            LaunchedEffect(Unit) {
+                mainQuestNFCViewModel.toastEvent.collect { event ->
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
 
             AppNavGraph(navController = navController, startDestination, nfcRaceViewModel)
         }

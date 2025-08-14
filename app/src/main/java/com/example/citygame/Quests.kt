@@ -1,79 +1,98 @@
 package com.example.citygame
 
 import com.google.android.gms.maps.model.LatLng
+import navigation.AppScreens
 
 object Quests {
-    data class Quest(
+    data class MiniQuest(
         val name: String,
         var isFinished: Boolean = false,
-        val coordinates: LatLng,
-        val hint: String,
-        val description: String // Добавляем описание квеста
+        val description: String
     )
 
     data class MainQuest(
         val name: String,
-        var isFinished: Boolean = false,
+        var isInProgress: Boolean = false,
         val coordinates: LatLng,
+        val route: String,
         val hint: String,
+        val miniQuest: MiniQuest
     )
 
-    val NFCQuest = Quest(
+    private val NFCRaceQuest = MiniQuest(
         name = "NFC Quest",
         isFinished = false,
-        coordinates = LatLng(52.400395, 16.955508),
-        hint = "Find and scan hidden NFC tags",
         description = "Find hidden NFC tags and read them with your device"
     )
 
-    val RLEQuest = Quest(
+    private val RLEQuest = MiniQuest(
         name = "RLE Quest",
         isFinished = false,
-        coordinates = LatLng(52.402395, 16.955508),
-        hint = "Decode the RLE encoded image",
         description = "Solve the mystery of visual cypher using the principles of RLE"
     )
 
-    val CipherQuest = Quest(
+    private val CipherQuest = MiniQuest(
         name = "Cipher Quest",
         isFinished = false,
-        coordinates = LatLng(52.404395, 16.955508),
-        hint = "Shift your position to decode the message",
         description = "Solve the cipher with shifting your geoposition"
     )
 
-    val GestureQuest = Quest(
+    private val GestureQuest = MiniQuest(
         name = "Gesture Quest",
         isFinished = false,
-        coordinates = LatLng(52.406395, 16.955508),
-        hint = "Repeat the gestures shown on screen",
         description = "Use your device camera to replicate a sequence gestures"
     )
 
-    val Quest1 = MainQuest(
-        name = "Quest 1",
+    private val ColorFilterQuest = MiniQuest(
+        name = "Color Filter Quest",
         isFinished = false,
-        coordinates = LatLng(52.408395, 16.955508),
-        hint = "Hint for Quest 1",
+        description = "Use your device camera to replicate a sequence gestures"
     )
 
-    val Quest2 = MainQuest(
-        name = "Quest 2",
-        isFinished = false,
+    val MainQuest1 = MainQuest(
+        name = "Main quest 1",
         coordinates = LatLng(52.408395, 16.955508),
-        hint = "Hint for Quest 2"
+        route = AppScreens.NFCRaceQuest.NAME,
+        hint = "Hint 1",
+        miniQuest = NFCRaceQuest
     )
 
-    val Quest3 = MainQuest(
-        name = "Quest 3",
-        isFinished = false,
+    val MainQuest2 = MainQuest(
+        name = "Main quest 2",
         coordinates = LatLng(52.408395, 16.955508),
-        hint = "Hint for Quest 3"
+        route = AppScreens.ColorFilterQuest.NAME,
+        hint = "Hint 2",
+        miniQuest = ColorFilterQuest
     )
-    
-    val allQuests = listOf(NFCQuest, RLEQuest, CipherQuest, GestureQuest/*, CardanGrilleQuest*/)
+
+    val MainQuest3 = MainQuest(
+        name = "Main quest 3",
+        coordinates = LatLng(52.408395, 16.955508),
+        route = AppScreens.RLEQuest.NAME,
+        hint = "Hint 3",
+        miniQuest = RLEQuest
+    )
+
+    val MainQuest4 = MainQuest(
+        name = "Main quest 4",
+        coordinates = LatLng(52.408395, 16.955508),
+        route = AppScreens.CipherQuest.NAME,
+        hint = "Hint 4",
+        miniQuest = CipherQuest
+    )
+
+    val MainQuest5 = MainQuest(
+        name = "Main quest 5",
+        coordinates = LatLng(52.408395, 16.955508),
+        route = AppScreens.GestureQuest.NAME,
+        hint = "Hint 5",
+        miniQuest = GestureQuest
+    )
+
+    val miniQuests = listOf(NFCRaceQuest, RLEQuest, CipherQuest, GestureQuest, ColorFilterQuest)
+    val mainQuests = listOf(MainQuest1, MainQuest2, MainQuest3, MainQuest4, MainQuest5)
 
     fun getDescriptionForQuest(questName: String): String? {
-        return allQuests.find { it.name == questName }?.description
+        return miniQuests.find { it.name == questName }?.description
     }
 }

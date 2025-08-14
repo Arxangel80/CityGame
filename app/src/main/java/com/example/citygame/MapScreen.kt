@@ -47,7 +47,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
-fun QuestMarker(quest: Quests.Quest, navTo: () -> Unit) {
+fun QuestMarker(quest: Quests.MainQuest, navTo: () -> Unit) {
     MarkerInfoWindow(
         state = MarkerState(position = quest.coordinates),
         title = quest.name,
@@ -137,16 +137,10 @@ fun MainDrawer(
                     true
                 }
             ) {
-                navToQuestsMap["NFC Quest"]?.let { QuestMarker(Quests.NFCQuest, it) }
-                navToQuestsMap["RLE Quest"]?.let { QuestMarker(Quests.RLEQuest, it) }
-                navToQuestsMap["Cipher Quest"]?.let { QuestMarker(Quests.CipherQuest, it) }
-                navToQuestsMap["Gesture Quest"]?.let { QuestMarker(Quests.GestureQuest, it) }
-                navToQuestsMap["Cardan Grille Quest"]?.let {
-                    QuestMarker(
-                        Quests.CardanGrilleQuest,
-                        it
-                    )
-                }
+                navToQuestsMap["NFC Quest"]?.let { QuestMarker(Quests.MainQuest1, it) }
+                navToQuestsMap["RLE Quest"]?.let { QuestMarker(Quests.MainQuest2, it) }
+                navToQuestsMap["Cipher Quest"]?.let { QuestMarker(Quests.MainQuest3, it) }
+                navToQuestsMap["Gesture Quest"]?.let { QuestMarker(Quests.MainQuest4, it) }
             }
         }
         BottomPullOutMenu(navToQuestsMap)
