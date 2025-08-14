@@ -45,6 +45,7 @@ fun AppNavGraph(
         composable(route = AppScreens.Quests.NAME) {
             QuestsScreen(navigateToMain = { navController.navigate(AppScreens.Welcome.NAME) })
         }
+        // Welcome
         composable(route = AppScreens.Welcome.NAME) {
             WelcomeScreen(onClick = {
                 val quest = Quests.MainQuest1
@@ -60,6 +61,7 @@ fun AppNavGraph(
                 )
             })
         }
+        // MapScreen
         composable(route = AppScreens.MapScreen.NAME) @androidx.annotation.RequiresPermission(allOf = [android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION]) {
             val navigateToQuestMap = mapOf(
                 "RLE Quest" to { navController.navigate(AppScreens.RLEQuest.NAME) },
@@ -92,6 +94,7 @@ fun AppNavGraph(
         composable(route = AppScreens.NFCRaceQuest.NAME) {
             NFCRaceQuest(nfcRaceViewModel, navController)
         }
+        // CompassScreen
         composable(
             route = AppScreens.CompassScreen.ROUTE_WITH_ARGS,
             arguments = listOf(
@@ -123,6 +126,7 @@ fun AppNavGraph(
             HintScreen(
                 hint = hint,
                 onClick = {
+                    Quests.currentMainQuestIndex++
                     Quests.mainQuests.first { it.miniQuest.isFinished }.let { nextQuest ->
                         navController.navigate(
                             AppScreens.CompassScreen.route(

@@ -24,17 +24,19 @@ class MainQuestNFCViewModel : ViewModel() {
     val navigationEvent: SharedFlow<String> = _navigationEvent
 
     fun onNFCTagScanned(tagMessage: String) {
-        val quest = Quests.mainQuests.find { it.name == tagMessage }
+        val currentQuest = Quests.mainQuests[Quests.currentMainQuestIndex]
 
-        if (quest != null) {
-            if (!quest.miniQuest.isFinished) {
-                if (!quest.isInProgress) {
+        if (tagMessage == currentQuest.name) {
+            // Mini quest not finished
+            if (!currentQuest.miniQuest.isFinished) {
+                // And main quest is not in progress start mini quest
+                if (!currentQuest.isInProgress) {
                     viewModelScope.launch {
-                        _navigationEvent.emit(quest.route)
-                        quest.isInProgress = true
+                        _navigationEvent.emit(currentQuest.route)
+                        currentQuest.isInProgress = true
                         _toastEvent.emit(
                             ToastEvent(
-                                message = "Квест '${quest.name}' начат! ${quest.miniQuest.description}"
+                                message = "Квест '${currentQuest.name}' начат! ${currentQuest.miniQuest.description}"
                             )
                         )
                     }
@@ -42,18 +44,22 @@ class MainQuestNFCViewModel : ViewModel() {
                     viewModelScope.launch {
                         _toastEvent.emit(
                             ToastEvent(
-                                message = "Квест уже начат! Пройдите мини-квест '${quest.miniQuest.name}' перед повторным чтением NFC тега"
+                                message = "Квест уже начат! Пройдите мини-квест '${currentQuest.miniQuest.name}'"
                             )
                         )
                     }
                 }
             } else {
                 viewModelScope.launch {
-                    _navigationEvent.emit(AppScreens.HintScreen.route(quest.hint))
+                    _navigationEvent.emit(AppScreens.HintScreen.route(currentQuest.hint))
                 }
             }
         } else {
-            Log.i("MainQuestNFCViewModel", "Unknown tag: $tagMessage")
+            viewModelScope.launch {
+                _toastEvent.emit(
+                    ToastEvent(message = "Эта метка пока не активна! Найдите метку для квеста '${currentQuest.name}'")
+                )
+            }
         }
     }
 }

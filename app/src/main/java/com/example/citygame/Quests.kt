@@ -4,6 +4,8 @@ import com.google.android.gms.maps.model.LatLng
 import navigation.AppScreens
 
 object Quests {
+    var currentMainQuestIndex = 0
+
     data class MiniQuest(
         val name: String,
         var isFinished: Boolean = false,
