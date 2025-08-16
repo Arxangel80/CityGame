@@ -1,4 +1,4 @@
-package com.example.citygame
+package com.example.citygame.mapScreen
 
 import android.Manifest
 import androidx.annotation.RequiresPermission
@@ -35,6 +35,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.citygame.BuildConfig
+import com.example.citygame.CityGameApp
+import com.example.citygame.R
+import com.example.citygame.utils.Quests
 import com.example.citygame.locationManager.LocationManager
 import com.example.citygame.locationManager.LocationManager.getLastLocation
 import com.google.android.gms.maps.model.CameraPosition

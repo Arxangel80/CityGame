@@ -1,4 +1,4 @@
-package com.example.citygame
+package com.example.citygame.utils
 
 import android.widget.Toast
 import androidx.compose.runtime.Composable

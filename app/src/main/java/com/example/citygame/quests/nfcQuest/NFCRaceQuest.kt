@@ -11,7 +11,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import com.example.citygame.QuestScreenWrapper
+import com.example.citygame.utils.QuestScreenWrapper
 
 
 @Composable

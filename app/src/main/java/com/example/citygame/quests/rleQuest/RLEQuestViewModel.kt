@@ -3,11 +3,10 @@ package com.example.citygame.quests.rleQuest
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.example.citygame.BaseQuestViewModel
-import com.example.citygame.Quests
+import com.example.citygame.utils.BaseQuestViewModel
+import com.example.citygame.utils.Quests
 import navigation.AppScreens
 
 class RLEQuestViewModel(

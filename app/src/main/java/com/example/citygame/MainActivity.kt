@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.citygame.utils.PermissionsHelper
 import com.example.citygame.locationManager.LocationManager
 import com.example.citygame.mainQuest.MainQuestNFCViewModel
 import com.example.citygame.notification.LocationViewModel

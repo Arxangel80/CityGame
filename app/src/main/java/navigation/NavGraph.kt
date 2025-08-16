@@ -11,19 +11,19 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.citygame.FinalScreen
+import com.example.citygame.mainQuest.FinalScreen
 import com.example.citygame.chat.ChatScreen
 import com.example.citygame.quests.cipherQuest.CipherScreen
 import com.example.citygame.feedback.StatisticsScreen
 import com.example.citygame.auth.LoginScreen
-import com.example.citygame.MainScreen
+import com.example.citygame.mapScreen.MainScreen
 import com.example.citygame.quests.nfcQuest.NFCRaceQuest
 import com.example.citygame.questsScreen.QuestsScreen
 import com.example.citygame.quests.rleQuest.RLEQuestScreen
-import com.example.citygame.HintScreen
-import com.example.citygame.Quests
-import com.example.citygame.WelcomeScreen
-import com.example.citygame.WinScreen
+import com.example.citygame.mainQuest.HintScreen
+import com.example.citygame.utils.Quests
+import com.example.citygame.mainQuest.WelcomeScreen
+import com.example.citygame.mainQuest.WinScreen
 import com.example.citygame.quests.colorFiltersQuest.ColorFiltersQuest
 import kotlinx.coroutines.launch
 

@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.citygame.QuestScreenWrapper
+import com.example.citygame.utils.QuestScreenWrapper
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 

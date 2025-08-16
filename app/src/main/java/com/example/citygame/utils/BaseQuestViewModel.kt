@@ -1,4 +1,4 @@
-package com.example.citygame
+package com.example.citygame.utils
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

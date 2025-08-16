@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.citygame.QuestScreenWrapper
+import com.example.citygame.utils.QuestScreenWrapper
 
 @Composable
 fun RLEQuestScreen(

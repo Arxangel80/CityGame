@@ -1,5 +1,6 @@
-package com.example.citygame
+package com.example.citygame.utils
 
+import com.example.citygame.QuestProgressManager
 import com.google.android.gms.maps.model.LatLng
 import navigation.AppScreens
 

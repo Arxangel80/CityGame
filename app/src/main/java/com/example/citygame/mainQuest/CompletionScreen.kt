@@ -1,4 +1,4 @@
-package com.example.citygame
+package com.example.citygame.mainQuest
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text

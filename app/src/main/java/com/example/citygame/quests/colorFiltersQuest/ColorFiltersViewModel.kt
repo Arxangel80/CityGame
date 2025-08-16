@@ -12,8 +12,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
-import com.example.citygame.BaseQuestViewModel
-import com.example.citygame.Quests
+import com.example.citygame.utils.BaseQuestViewModel
+import com.example.citygame.utils.Quests
 import navigation.AppScreens
 
 

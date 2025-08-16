@@ -1,14 +1,12 @@
 package com.example.citygame.mainQuest
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import navigation.AppScreens
-import com.example.citygame.Quests
+import com.example.citygame.utils.Quests
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
-import java.net.URLEncoder
 
 data class ToastEvent(
     val message: String,

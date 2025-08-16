@@ -1,8 +1,8 @@
 import androidx.lifecycle.MutableLiveData
 import android.os.CountDownTimer
 import androidx.lifecycle.LiveData
-import com.example.citygame.BaseQuestViewModel
-import com.example.citygame.Quests
+import com.example.citygame.utils.BaseQuestViewModel
+import com.example.citygame.utils.Quests
 import navigation.AppScreens
 
 class NFCRaceViewModel : BaseQuestViewModel() {

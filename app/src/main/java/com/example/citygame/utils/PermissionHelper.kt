@@ -1,4 +1,4 @@
-package com.example.citygame
+package com.example.citygame.utils
 
 import android.Manifest
 import android.app.Activity

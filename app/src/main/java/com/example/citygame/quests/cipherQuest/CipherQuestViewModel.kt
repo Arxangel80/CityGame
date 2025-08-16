@@ -2,8 +2,8 @@ package com.example.citygame.quests.cipherQuest
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import com.example.citygame.BaseQuestViewModel
-import com.example.citygame.Quests
+import com.example.citygame.utils.BaseQuestViewModel
+import com.example.citygame.utils.Quests
 import com.example.citygame.locationManager.LocationManager
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
