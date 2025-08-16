@@ -57,7 +57,7 @@ class MainQuestNFCViewModel : ViewModel() {
         } else {
             viewModelScope.launch {
                 _toastEvent.emit(
-                    ToastEvent(message = "Эта метка пока не активна! Найдите метку для квеста '${currentQuest.name}'")
+                    ToastEvent(message = "Эта метка пока не активна!")
                 )
             }
         }

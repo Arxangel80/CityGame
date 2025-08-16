@@ -65,7 +65,7 @@ class NFCRaceViewModel : BaseQuestViewModel() {
 
     fun win() {
         onWin(
-            nextQuestFinished = { Quests.MainQuest1.miniQuest.isFinished = true },
+            nextQuestFinished = { Quests.markMiniQuestFinished(Quests.MainQuest1.miniQuest.name) },
             navigateTo = AppScreens.WinScreen.NAME,
             toast = "Вы успели — вы не лох 😎 \n Идите на следующий квест "
         )

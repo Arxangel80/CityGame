@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.citygame.BuildConfig
 import com.example.citygame.GestureViewModel
 
 @Composable
@@ -58,6 +60,10 @@ fun GestureQuestScreen(
                 style = MaterialTheme.typography.titleSmall,
                 modifier = Modifier.padding(16.dp)
             )
+            if (BuildConfig.DEBUG)
+                Button(onClick = { viewModel.win() }) {
+                    Text("Win")
+                }
         }
     }
 }

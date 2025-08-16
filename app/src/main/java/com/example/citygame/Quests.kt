@@ -5,6 +5,29 @@ import navigation.AppScreens
 
 object Quests {
     var currentMainQuestIndex = 0
+    lateinit var progressManager: QuestProgressManager
+
+    suspend fun loadProgress() {
+        progressManager.currentMainQuestIndexFlow.collect { index ->
+            currentMainQuestIndex = index
+        }
+
+        progressManager.finishedQuestsFlow.collect { finished ->
+            miniQuests.forEach {
+                it.isFinished = finished.contains(it.name)
+            }
+        }
+    }
+
+    suspend fun markMiniQuestFinished(name: String) {
+        miniQuests.find { it.name == name }?.isFinished = true
+        progressManager.markQuestFinished(name)
+    }
+
+    suspend fun setMainQuestIndex(index: Int) {
+        currentMainQuestIndex = index
+        progressManager.saveCurrentMainQuestIndex(index)
+    }
 
     data class MiniQuest(
         val name: String,

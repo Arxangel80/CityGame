@@ -5,11 +5,13 @@ import GestureQuestScreen
 import NFCRaceViewModel
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.citygame.FinalScreen
 import com.example.citygame.chat.ChatScreen
 import com.example.citygame.quests.cipherQuest.CipherScreen
 import com.example.citygame.feedback.StatisticsScreen
@@ -23,6 +25,7 @@ import com.example.citygame.Quests
 import com.example.citygame.WelcomeScreen
 import com.example.citygame.WinScreen
 import com.example.citygame.quests.colorFiltersQuest.ColorFiltersQuest
+import kotlinx.coroutines.launch
 
 @SuppressLint("MissingPermission")
 @Composable
@@ -80,10 +83,10 @@ fun AppNavGraph(
             ChatScreen()
         }
         composable(route = AppScreens.RLEQuest.NAME) {
-            RLEQuestScreen(8, 8)
+            RLEQuestScreen(navController)
         }
         composable(route = AppScreens.CipherQuest.NAME) {
-            CipherScreen()
+            CipherScreen(navController)
         }
         composable(route = AppScreens.GestureQuest.NAME) {
             GestureQuestScreen()
@@ -122,12 +125,14 @@ fun AppNavGraph(
             )
         ) { backStackEntry ->
             val hint = backStackEntry.arguments?.getString("hint") ?: ""
+            val coroutineScope = rememberCoroutineScope()
 
             HintScreen(
                 hint = hint,
                 onClick = {
-                    Quests.currentMainQuestIndex++
-                    Quests.mainQuests.first { it.miniQuest.isFinished }.let { nextQuest ->
+                    coroutineScope.launch {
+                        Quests.setMainQuestIndex(Quests.currentMainQuestIndex + 1)
+                        val nextQuest = Quests.mainQuests.first { it.miniQuest.isFinished }
                         navController.navigate(
                             AppScreens.CompassScreen.route(
                                 nextQuest.coordinates.latitude.toFloat(),
@@ -137,6 +142,9 @@ fun AppNavGraph(
                     }
                 }
             )
+        }
+        composable(route = AppScreens.FinalScreen.NAME) {
+            FinalScreen(navController)
         }
     }
 }

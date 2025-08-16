@@ -11,8 +11,11 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+import navigation.AppScreens
 
 class GestureViewModel(application: Application) : AndroidViewModel(application) {
     private val context = application.applicationContext
@@ -30,12 +33,18 @@ class GestureViewModel(application: Application) : AndroidViewModel(application)
     val preview = Preview.Builder().build()
     var previewView: PreviewView? = null
 
+    private val _navigationEvent = MutableSharedFlow<String>()
+    val navigationEvent: SharedFlow<String> = _navigationEvent
+
     val recognizedGesture = MutableStateFlow("No gesture recognized")
     val recognizedGestures = mutableListOf<String>()
     val recognizedGesturesUI = mutableStateOf<List<String>>(emptyList())
 
     private var lastGestureJob: Job? = null
     private var lastGesture: String = "None"
+
+    private val correctGestures = listOf("ThumbUp", "Victory", "ThumbDown")
+
 
     fun onGestureRecognized(gesture: String) {
         recognizedGesture.value = gesture
@@ -55,6 +64,22 @@ class GestureViewModel(application: Application) : AndroidViewModel(application)
                     if (BuildConfig.DEBUG) {
                         Log.i("Gesture", "Added after delay: $gesture")
                     }
+
+                    if (recognizedGestures.size > correctGestures.size) {
+                        // recognizedGestures.removeFirst() Другой возможный вариант логики
+                        recognizedGestures.clear()
+                    }
+
+                    // Проверяем победу
+                    if (recognizedGestures == correctGestures) {
+                        win()
+                    }
+
+                    if (BuildConfig.DEBUG) {
+                        Log.i("Gesture", "Added after delay: $gesture")
+                    }
+
+
                     lastGesture = "None"
                 }
             }
@@ -84,6 +109,13 @@ class GestureViewModel(application: Application) : AndroidViewModel(application)
         cameraProvider?.bindToLifecycle(lifecycleOwner, cameraSelector, preview, imageAnalyzer)
         preview.setSurfaceProvider(previewView.surfaceProvider)
     }
+
+    fun win() {
+        viewModelScope.launch {
+            _navigationEvent.emit(AppScreens.FinalScreen.NAME)
+        }
+    }
+
 
     override fun onCleared() {
         super.onCleared()

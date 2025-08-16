@@ -14,7 +14,7 @@ abstract class BaseQuestViewModel : ViewModel() {
     val toastEvent: SharedFlow<String> = _toastEvent
 
     open fun onWin(
-        nextQuestFinished: (() -> Unit)? = null,
+        nextQuestFinished: (suspend () -> Unit)? = null,
         navigateTo: String? = null,
         toast: String? = null
     ) {

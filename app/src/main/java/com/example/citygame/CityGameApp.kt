@@ -16,6 +16,7 @@ class CityGameApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        Quests.progressManager = QuestProgressManager(this)
         cookieJar = PersistentCookieJar(this)
         apiService = NetworkModule.provideApiService(this, cookieJar)
         siManager = SocketIOManager("http://192.168.0.17:5000", cookieJar)

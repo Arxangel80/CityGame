@@ -72,7 +72,7 @@ class MainActivity : ComponentActivity() {
 
             val currentBackStackEntry by navController.currentBackStackEntryAsState()
             val currentScreenName = currentBackStackEntry?.destination?.route?.let { route ->
-                route.substringBefore('/') // Только имя экрана
+                route.substringBefore('/')
             } ?: ""
 
 
@@ -89,7 +89,10 @@ class MainActivity : ComponentActivity() {
             // Processing navigation events
             LaunchedEffect(Unit) {
                 mainQuestNFCViewModel.navigationEvent.collect { route ->
-                    navController.navigate(route)
+                    navController.navigate(route) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
             }
 

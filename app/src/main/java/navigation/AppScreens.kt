@@ -67,4 +67,8 @@ object AppScreens {
     object FeedBackScreen {
         const val NAME = "FeedBackScreen"
     }
+
+    object FinalScreen {
+        const val NAME = "FinalScreen"
+    }
 }
