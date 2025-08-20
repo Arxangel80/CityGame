@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
-import navigation.AppScreens
+import com.example.citygame.navigation.AppScreens
 
 class GestureViewModel(application: Application) : AndroidViewModel(application) {
     private val context = application.applicationContext
@@ -37,54 +37,56 @@ class GestureViewModel(application: Application) : AndroidViewModel(application)
     val navigationEvent: SharedFlow<String> = _navigationEvent
 
     val recognizedGesture = MutableStateFlow("No gesture recognized")
-    val recognizedGestures = mutableListOf<String>()
-    val recognizedGesturesUI = mutableStateOf<List<String>>(emptyList())
+    val gesturesList = mutableStateOf<List<String>>(emptyList())
 
     private var lastGestureJob: Job? = null
     private var lastGesture: String = "None"
 
-    private val correctGestures = listOf("ThumbUp", "Victory", "ThumbDown")
+    private val correctGestures = listOf("Thumb_Up", "Open_Palm", "Closed_Fist", "Victory")
 
+    fun onGestureRecognized(currentGesture: String) {
+        recognizedGesture.value = currentGesture // Update UI
 
-    fun onGestureRecognized(gesture: String) {
-        recognizedGesture.value = gesture
-        if (gesture != "None") {
+        if (currentGesture == "None") {
+            lastGestureJob?.cancel()
+            lastGesture = "None"
+            return
+        }
+
+        // If gesture remain the same we return
+        if (currentGesture == lastGesture) {
+            return
+        } else {
+            lastGesture = currentGesture
+            lastGestureJob?.cancel()
+        }
+
+        lastGestureJob = viewModelScope.launch {
+            delay(2000L)
+
             if (BuildConfig.DEBUG) {
-                Log.i("GestureQuest", recognizedGestures.toString())
+                Log.i("GestureQuest", "Added after delay: $currentGesture")
+                Log.i("GestureQuest", "Current gestures: ${gesturesList.value}")
+                Log.i("GestureQuest", "Last gestures: $lastGesture")
+                Log.i("GestureQuest", "Last job: $lastGestureJob")
             }
 
-            if (lastGesture != gesture) {
-                lastGesture = gesture
+            if (lastGesture != currentGesture) {
+                return@launch
+            }
 
-                lastGestureJob?.cancel()
-                lastGestureJob = viewModelScope.launch {
-                    delay(2000L)
-                    recognizedGestures.add(gesture)
-                    recognizedGesturesUI.value = recognizedGesturesUI.value + gesture
-                    if (BuildConfig.DEBUG) {
-                        Log.i("Gesture", "Added after delay: $gesture")
-                    }
+            gesturesList.value = gesturesList.value + currentGesture
 
-                    if (recognizedGestures.size > correctGestures.size) {
-                        // recognizedGestures.removeFirst() Другой возможный вариант логики
-                        recognizedGestures.clear()
-                    }
-
-                    // Проверяем победу
-                    if (recognizedGestures == correctGestures) {
-                        win()
-                    }
-
-                    if (BuildConfig.DEBUG) {
-                        Log.i("Gesture", "Added after delay: $gesture")
-                    }
-
-
-                    lastGesture = "None"
+            if (gesturesList.value.size == correctGestures.size) {
+                if (gesturesList.value == correctGestures) {
+                    win()
+                } else {
+                    gesturesList.value = emptyList()
                 }
             }
-        } else {
-            lastGestureJob?.cancel()
+
+            lastGesture = "None"
+            lastGestureJob = null
         }
     }
 

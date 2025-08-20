@@ -5,4 +5,5 @@
     <string name="LoginActionText">Login</string>
     <string name="RegisterActionText">Sign Up</string>
     <string name="LoginInsteadText">Already have an account? Login</string>
+    <string name="title_activity_registration_screen">RegistrationScreen</string>
 </resources>

@@ -1,9 +1,12 @@
-package navigation
+package com.example.citygame.navigation
 
 import CompassScreen
 import GestureQuestScreen
 import NFCRaceViewModel
+import android.Manifest
 import android.annotation.SuppressLint
+import android.net.Uri
+import androidx.annotation.RequiresPermission
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
@@ -16,9 +19,11 @@ import com.example.citygame.chat.ChatScreen
 import com.example.citygame.quests.cipherQuest.CipherScreen
 import com.example.citygame.feedback.StatisticsScreen
 import com.example.citygame.auth.LoginScreen
+import com.example.citygame.auth.RegistrationScreen
 import com.example.citygame.mapScreen.MainScreen
 import com.example.citygame.quests.nfcQuest.NFCRaceQuest
-import com.example.citygame.questsScreen.QuestsScreen
+import com.example.citygame.SessionScreens.SessionCreationScreen
+import com.example.citygame.SessionScreens.SessionJoinScreen
 import com.example.citygame.quests.rleQuest.RLEQuestScreen
 import com.example.citygame.mainQuest.HintScreen
 import com.example.citygame.utils.Quests
@@ -39,16 +44,41 @@ fun AppNavGraph(
         startDestination = startDestination
     ) {
         composable(route = AppScreens.Login.NAME) {
-            LoginScreen(onNextButtonClicked = {
-                navController.navigate(AppScreens.Quests.NAME) {
-                    popUpTo(0)
-                }
-            })
+            LoginScreen(
+                onLoginSuccess = {
+                    navController.navigate(AppScreens.SessionCreationScreen.NAME) {
+                        popUpTo(AppScreens.Registration.NAME) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                },
+                onSignupClicked = { navController.navigate(AppScreens.Registration.NAME) }
+            )
         }
-        composable(route = AppScreens.Quests.NAME) {
-            QuestsScreen(navigateToMain = { navController.navigate(AppScreens.Welcome.NAME) })
+        composable(route = AppScreens.Registration.NAME) {
+            RegistrationScreen(
+                onSuccessfulRegistration = {
+                    navController.navigate(AppScreens.SessionCreationScreen.NAME) {
+                        popUpTo(AppScreens.Registration.NAME) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                },
+                onLoginClicked = { navController.navigate(AppScreens.Login.NAME) }
+            )
         }
-        // Welcome
+        composable(route = AppScreens.SessionJoinScreen.NAME) {
+            SessionJoinScreen(
+                navigateToMain = { navController.navigate(AppScreens.Welcome.NAME) },
+                onCreateClick = { navController.navigate(AppScreens.SessionCreationScreen.NAME) })
+        }
+
+        composable(route = AppScreens.SessionCreationScreen.NAME) {
+            SessionCreationScreen(navigateToMain = { navController.navigate(AppScreens.Welcome.NAME) })
+        }
+
         composable(route = AppScreens.Welcome.NAME) {
             WelcomeScreen(onClick = {
                 val quest = Quests.MainQuest1
@@ -65,7 +95,7 @@ fun AppNavGraph(
             })
         }
         // MapScreen
-        composable(route = AppScreens.MapScreen.NAME) @androidx.annotation.RequiresPermission(allOf = [android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION]) {
+        composable(route = AppScreens.MapScreen.NAME) @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION]) {
             val navigateToQuestMap = mapOf(
                 "RLE Quest" to { navController.navigate(AppScreens.RLEQuest.NAME) },
                 "Cipher Quest" to { navController.navigate(AppScreens.CipherQuest.NAME) },
@@ -89,7 +119,7 @@ fun AppNavGraph(
             CipherScreen(navController)
         }
         composable(route = AppScreens.GestureQuest.NAME) {
-            GestureQuestScreen()
+            GestureQuestScreen(navController = navController)
         }
         composable(route = AppScreens.ColorFilterQuest.NAME) {
             ColorFiltersQuest(navController = navController)
@@ -124,14 +154,18 @@ fun AppNavGraph(
                 navArgument("hint") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val hint = backStackEntry.arguments?.getString("hint") ?: ""
+            val hint = backStackEntry.arguments
+                ?.getString("hint")
+                ?.let { Uri.decode(it) } // decode spaces and special chars
+                ?: ""
+
             val coroutineScope = rememberCoroutineScope()
 
             HintScreen(
                 hint = hint,
                 onClick = {
                     coroutineScope.launch {
-                        Quests.setMainQuestIndex(Quests.currentMainQuestIndex + 1)
+                        Quests.currentMainQuestIndex + 1
                         val nextQuest = Quests.mainQuests.first { it.miniQuest.isFinished }
                         navController.navigate(
                             AppScreens.CompassScreen.route(

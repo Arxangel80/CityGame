@@ -7,7 +7,7 @@ import android.content.IntentFilter
 import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
-import navigation.AppScreens
+import com.example.citygame.navigation.AppScreens
 import java.nio.charset.Charset
 
 class NfcHandler(

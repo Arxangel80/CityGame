@@ -138,21 +138,21 @@ private fun LocationInfo(
         modifier = modifier
     ) {
         Text(
-            text = "Азимут: ${"%.1f".format(azimuth)}°",
+            text = "Azimuth: ${"%.1f".format(azimuth)}°",
             fontSize = 18.sp
         )
         Text(
-            text = "Направление на цель: ${"%.1f".format(bearing)}°",
+            text = "Direction to the target: ${"%.1f".format(bearing)}°",
             fontSize = 18.sp
         )
         userLocation?.let {
             Text(
-                text = "Ваши координаты: ${"%.6f".format(it.latitude)}, ${"%.6f".format(it.longitude)}",
+                text = "Your coordinates: ${"%.6f".format(it.latitude)}, ${"%.6f".format(it.longitude)}",
                 fontSize = 14.sp
             )
         }
         Text(
-            text = "Цель: ${"%.6f".format(targetLatitude)}, ${"%.6f".format(targetLongitude)}",
+            text = "Target: ${"%.6f".format(targetLatitude)}, ${"%.6f".format(targetLongitude)}",
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold
         )

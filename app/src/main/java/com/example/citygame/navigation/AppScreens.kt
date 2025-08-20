@@ -1,19 +1,26 @@
-package navigation
+package com.example.citygame.navigation
 
-import java.net.URLEncoder
+import android.net.Uri
 
 object AppScreens {
-
     object Login {
         const val NAME = "Login"
     }
 
-    object Quests {
-        const val NAME = "Quests"
+    object Registration {
+        const val NAME = "Registration"
     }
 
     object Welcome {
         const val NAME = "Welcome"
+    }
+
+    object SessionCreationScreen {
+        const val NAME = "SessionCreationScreen"
+    }
+
+    object SessionJoinScreen {
+        const val NAME = "SessionJoinScreen"
     }
 
     object CompassScreen {
@@ -30,10 +37,13 @@ object AppScreens {
     }
 
     object HintScreen {
-        const val NAME = "HintScreen"
-        const val ROUTE_WITH_ARGS = "$NAME/{hint}"
+        const val ROUTE = "hint_screen"
+        const val ROUTE_WITH_ARGS = "$ROUTE/{hint}"
 
-        fun route(hint: String): String = "$NAME/${URLEncoder.encode(hint, "UTF-8")}"
+        fun route(hint: String): String {
+            val encodedHint = Uri.encode(hint)
+            return "$ROUTE/$encodedHint"
+        }
     }
 
     object RLEQuest {

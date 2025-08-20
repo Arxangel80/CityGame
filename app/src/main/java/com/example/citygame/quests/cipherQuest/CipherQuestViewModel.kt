@@ -10,12 +10,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import navigation.AppScreens
+import com.example.citygame.navigation.AppScreens
 import kotlin.math.sqrt
 import kotlin.random.Random
 
 
 class CipherViewModel : BaseQuestViewModel() {
+    private val _messageDecoded = MutableStateFlow(false)
+    val messageDecoded: StateFlow<Boolean> = _messageDecoded
+
 
     companion object {
         private const val DECRYPTION_DISTANCE = 40
@@ -24,13 +27,15 @@ class CipherViewModel : BaseQuestViewModel() {
 
     private val destinationCoordinates = LatLng(52.399181, 16.955630)
     private val decryptedText =
-        "Hello world! That's my cipher quest! Keep going, you are on the right way!"
+        "Hello world! That's my cipher quest! Keep going, you are on the right way! The key is the year of the plane's production"
 
     private val _cipherText = MutableStateFlow("")
     val cipherText: StateFlow<String> = _cipherText.asStateFlow()
 
     private val _location = MutableStateFlow<LatLng?>(null)
     val location: StateFlow<LatLng?> = _location.asStateFlow()
+    private var lastUpdatedLocation: LatLng? = null
+    private val MIN_DISTANCE_METERS = 10.0
 
     private val _distance = MutableStateFlow(0.0)
     val distance: StateFlow<Double> = _distance.asStateFlow()
@@ -38,22 +43,34 @@ class CipherViewModel : BaseQuestViewModel() {
     init {
         viewModelScope.launch {
             LocationManager.locationFlow.collect { newLocation ->
-                _location.value = newLocation
-                newLocation?.let {
-                    _cipherText.value = encryptTextBasedOnDistance(
-                        decryptedText,
-                        destinationCoordinates,
-                        it,
-                        DECRYPTION_DISTANCE
-                    )
+                newLocation?.let { location ->
+                    val shouldUpdate = lastUpdatedLocation?.let { last ->
+                        // Convert latitude/longitude differences to approximate meters (111_320 coef to meters)
+                        val dx = (location.latitude - last.latitude) * 111_320
+                        val dy = (location.longitude - last.longitude) * 111_320
+                        sqrt(dx * dx + dy * dy) >= MIN_DISTANCE_METERS
+                    } ?: true // Compute distance and check against threshold
 
-                    val x = (it.latitude - destinationCoordinates.latitude) * 111320
-                    val y = (it.longitude - destinationCoordinates.longitude) * 111320
-                    _distance.value = sqrt(x * x + y * y)
+                    if (shouldUpdate) {
+                        lastUpdatedLocation = location
+                        _location.value = location
+
+                        _cipherText.value = encryptTextBasedOnDistance(
+                            decryptedText,
+                            destinationCoordinates,
+                            location,
+                            DECRYPTION_DISTANCE
+                        )
+
+                        val dx = (location.latitude - destinationCoordinates.latitude) * 111_320
+                        val dy = (location.longitude - destinationCoordinates.longitude) * 111_320
+                        _distance.value = sqrt(dx * dx + dy * dy)
+                    }
                 }
             }
         }
     }
+
 
     private fun randomCharForType(text: String): String {
         val randomText = text.map { char ->
@@ -81,8 +98,10 @@ class CipherViewModel : BaseQuestViewModel() {
         val y = (longitudeCurrent - longitudeDest) * 111320
         val distance = sqrt(x * x + y * y)
 
-        if (distance <= decryptionDistance) return text
-        else if (distance >= MAX_DISTANCE) return randomCharForType(text)
+        if (distance <= decryptionDistance) {
+            _messageDecoded.value = true
+            return text
+        } else if (distance >= MAX_DISTANCE) return randomCharForType(text)
 
         val distanceToMinDistance = (distance - decryptionDistance) / distance
         val charToCipher = (text.length * distanceToMinDistance).toInt()

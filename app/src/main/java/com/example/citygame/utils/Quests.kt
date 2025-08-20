@@ -1,33 +1,13 @@
 package com.example.citygame.utils
 
-import com.example.citygame.QuestProgressManager
 import com.google.android.gms.maps.model.LatLng
-import navigation.AppScreens
+import com.example.citygame.navigation.AppScreens
 
 object Quests {
     var currentMainQuestIndex = 0
-    lateinit var progressManager: QuestProgressManager
 
-    suspend fun loadProgress() {
-        progressManager.currentMainQuestIndexFlow.collect { index ->
-            currentMainQuestIndex = index
-        }
-
-        progressManager.finishedQuestsFlow.collect { finished ->
-            miniQuests.forEach {
-                it.isFinished = finished.contains(it.name)
-            }
-        }
-    }
-
-    suspend fun markMiniQuestFinished(name: String) {
+    fun markMiniQuestFinished(name: String) {
         miniQuests.find { it.name == name }?.isFinished = true
-        progressManager.markQuestFinished(name)
-    }
-
-    suspend fun setMainQuestIndex(index: Int) {
-        currentMainQuestIndex = index
-        progressManager.saveCurrentMainQuestIndex(index)
     }
 
     data class MiniQuest(
@@ -79,7 +59,7 @@ object Quests {
         name = "Main quest 1",
         coordinates = LatLng(52.408395, 16.955508),
         route = AppScreens.NFCRaceQuest.NAME,
-        hint = "Hint 1",
+        hint = "01010100 01101000 01110101 01101101 01100010 00100000 01110101 01110000",
         miniQuest = NFCRaceQuest
     )
 
@@ -87,7 +67,7 @@ object Quests {
         name = "Main quest 2",
         coordinates = LatLng(52.408395, 16.955508),
         route = AppScreens.ColorFilterQuest.NAME,
-        hint = "Hint 2",
+        hint = "56 69 63 74 6f 72 79",
         miniQuest = ColorFilterQuest
     )
 
@@ -95,7 +75,7 @@ object Quests {
         name = "Main quest 3",
         coordinates = LatLng(52.408395, 16.955508),
         route = AppScreens.RLEQuest.NAME,
-        hint = "Hint 3",
+        hint = "--- .--. . -. / .--. .- .-.. --",
         miniQuest = RLEQuest
     )
 
@@ -103,7 +83,7 @@ object Quests {
         name = "Main quest 4",
         coordinates = LatLng(52.408395, 16.955508),
         route = AppScreens.CipherQuest.NAME,
-        hint = "Hint 4",
+        hint = "Cqdvk mxfw",
         miniQuest = CipherQuest
     )
 
@@ -111,7 +91,7 @@ object Quests {
         name = "Main quest 5",
         coordinates = LatLng(52.408395, 16.955508),
         route = AppScreens.GestureQuest.NAME,
-        hint = "Hint 5",
+        hint = "Null",
         miniQuest = GestureQuest
     )
 

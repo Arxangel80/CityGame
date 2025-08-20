@@ -14,7 +14,7 @@ import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
 import com.example.citygame.utils.BaseQuestViewModel
 import com.example.citygame.utils.Quests
-import navigation.AppScreens
+import com.example.citygame.navigation.AppScreens
 
 
 enum class ColorQuestScreen {

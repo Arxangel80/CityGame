@@ -21,8 +21,8 @@ import com.example.citygame.mainQuest.MainQuestNFCViewModel
 import com.example.citygame.notification.LocationViewModel
 import com.example.citygame.notification.NotificationUtils
 import com.example.citygame.nfcHandler.NfcHandler
-import navigation.AppNavGraph
-import navigation.AppScreens
+import com.example.citygame.navigation.AppNavGraph
+import com.example.citygame.navigation.AppScreens
 
 
 class MainActivity : ComponentActivity() {

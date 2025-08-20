@@ -1,33 +1,26 @@
-package com.example.citygame.questsScreen
+package com.example.citygame.SessionScreens
 
 import android.app.Application
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
-import com.example.citygame.CityGameApp
+import androidx.lifecycle.viewModelScope
 import com.example.citygame.R
-import okhttp3.HttpUrl
+import com.example.citygame.data.NetworkModule.apiService
+import com.example.citygame.data.remote.CreateSessionRequest
+import kotlinx.coroutines.launch
 
 
-class QuestsViewModel(
-    app: Application
+class SessionCreationViewModel(
+    app: Application,
 ) : AndroidViewModel(app) {
-    val socketManager = (app as CityGameApp).siManager
 
     val items = mutableStateListOf<GridItem>()
-
     private val _toastMessage = mutableStateOf<String?>(null)
     val toastMessage: State<String?> = _toastMessage
 
-    private val url = HttpUrl.Builder()
-        .scheme("http")
-        .host("192.168.0.17")
-        .port(5000)
-        .build()
-
     init {
-        startSocket()
         loadGridItems()
     }
 
@@ -54,18 +47,28 @@ class QuestsViewModel(
 
     fun clearToast() {
         _toastMessage.value = null
-
     }
 
-    private fun startSocket() {
-        socketManager.connect(url) { message ->
-            _toastMessage.value = message
+    fun createSession(jwtToken: String) {
+        viewModelScope.launch {
+            try {
+                val response = apiService.createSession(
+                    CreateSessionRequest(),
+                    token = "Bearer $jwtToken"
+                )
+                if (response.isSuccessful) {
+                    response.body()?.let { body ->
+                        _toastMessage.value = "Session created! Code: ${body.session.code}"
+                    } ?: run {
+                        _toastMessage.value = "Empty response from server"
+                    }
+                } else {
+                    _toastMessage.value = "Error creating session: ${response.code()}"
+                }
+            } catch (e: Exception) {
+                _toastMessage.value = "Network error: ${e.message}"
+            }
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        socketManager.disconnect()
     }
 
     data class GridItem(

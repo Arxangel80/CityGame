@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.example.citygame.utils.BaseQuestViewModel
 import com.example.citygame.utils.Quests
-import navigation.AppScreens
+import com.example.citygame.navigation.AppScreens
 
 class RLEQuestViewModel(
 ) : BaseQuestViewModel() {

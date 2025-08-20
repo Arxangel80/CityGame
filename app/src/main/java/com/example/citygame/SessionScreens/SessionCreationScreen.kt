@@ -1,4 +1,4 @@
-package com.example.citygame.questsScreen
+package com.example.citygame.SessionScreens
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -39,10 +39,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 @Composable
-fun QuestsScreen(
+fun SessionCreationScreen(
     navigateToMain: () -> Unit,
 ) {
-    val viewModel: QuestsViewModel = viewModel()
+    val viewModel: SessionCreationViewModel = viewModel()
     val context = LocalContext.current
 
     val toastMessage by viewModel.toastMessage
@@ -54,12 +54,6 @@ fun QuestsScreen(
         }
     }
 
-    QuestsDrawer(navigateToMain, viewModel.items)
-}
-
-
-@Composable
-fun QuestsDrawer(navigateToMain: () -> Unit, items: SnapshotStateList<QuestsViewModel.GridItem>) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(1),
         contentPadding = PaddingValues(8.dp),
@@ -69,14 +63,14 @@ fun QuestsDrawer(navigateToMain: () -> Unit, items: SnapshotStateList<QuestsView
             .padding(8.dp)
     ) {
         items(items) { item ->
-            GridItem(item, onClick = { navigateToMain() })
+            GridItem(item, onClick = { viewModel.createSession() })
         }
     }
 }
 
 
 @Composable
-fun GridItem(item: QuestsViewModel.GridItem, onClick: () -> Unit) {
+fun GridItem(item: SessionCreationViewModel.GridItem, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .padding(4.dp)
@@ -120,13 +114,5 @@ fun GridItem(item: QuestsViewModel.GridItem, onClick: () -> Unit) {
                 )
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun QuestsScreenPreview() {
-    MaterialTheme {
-        QuestsScreen(navigateToMain = {})
     }
 }

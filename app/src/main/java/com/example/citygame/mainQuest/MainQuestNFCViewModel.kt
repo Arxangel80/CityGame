@@ -2,7 +2,7 @@ package com.example.citygame.mainQuest
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import navigation.AppScreens
+import com.example.citygame.navigation.AppScreens
 import com.example.citygame.utils.Quests
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow

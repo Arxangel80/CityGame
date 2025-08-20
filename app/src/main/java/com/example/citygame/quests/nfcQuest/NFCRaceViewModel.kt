@@ -3,7 +3,7 @@ import android.os.CountDownTimer
 import androidx.lifecycle.LiveData
 import com.example.citygame.utils.BaseQuestViewModel
 import com.example.citygame.utils.Quests
-import navigation.AppScreens
+import com.example.citygame.navigation.AppScreens
 
 class NFCRaceViewModel : BaseQuestViewModel() {
     private var _readedMsg = MutableLiveData<String>()

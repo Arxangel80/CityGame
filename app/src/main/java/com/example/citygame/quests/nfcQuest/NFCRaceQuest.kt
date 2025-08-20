@@ -31,11 +31,11 @@ fun NFCRaceQuest(viewModel: NFCRaceViewModel, navController: NavController) {
             if (readedMsg != null) {
                 Text(text = "NFC: $readedMsg")
             } else {
-                Text(text = "Поднесите NFC-метку")
+                Text(text = "Scan the NFC-tag")
             }
 
-            Text("Текущая метка: ${currentIndex + 1}")
-            Text("Оставшееся время: $timeLeft сек")
+            Text("Current race stage (tag): ${currentIndex + 1}")
+            Text("Time remaining: $timeLeft s.")
         }
     }
 }
