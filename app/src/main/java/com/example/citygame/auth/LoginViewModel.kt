@@ -1,7 +1,10 @@
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.citygame.data.NetworkModule
 import com.example.citygame.data.NetworkModule.apiService
+import com.example.citygame.data.local.UserPreferences
+import com.example.citygame.data.remote.ApiErrorParser
 import com.example.citygame.data.remote.LoginRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,6 +16,8 @@ import org.json.JSONObject
 class LoginViewModel(
     app: Application
 ) : AndroidViewModel(app) {
+    private val context = getApplication<Application>().applicationContext
+
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
@@ -47,18 +52,14 @@ class LoginViewModel(
                     )
                 )
                 if (response.isSuccessful) {
-                    response.body()?.accessToken?.let { token ->
+                    response.body()?.access_token?.let { token ->
                         UserPreferences.saveAccessToken(context, token)
+                        NetworkModule.setToken(token)
                     }
                     _uiState.value = LoginUiState.Success("Logged in!")
+                    onSuccess()
                 } else {
-                    val errorJson = response.errorBody()?.string()
-                    val errorMessage = try {
-                        JSONObject(errorJson).getString("message")
-                    } catch (e: Exception) {
-                        "Login error (${response.code()})"
-                    }
-                    _uiState.value = LoginUiState.Error(errorMessage)
+                    _uiState.value = LoginUiState.Error(ApiErrorParser.parseError(response))
                 }
             } catch (e: Exception) {
                 _uiState.value = LoginUiState.Error(e.message ?: "Network error")
@@ -72,7 +73,7 @@ class LoginViewModel(
     }
 
     data class LoginCredentials(
-        val login: String = "Dias",
+        val login: String = "User1",
         val pwd: String = "Loh"
     ) {
         fun isNotEmpty(): Boolean {

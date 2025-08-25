@@ -19,10 +19,6 @@ object AppScreens {
         const val NAME = "SessionCreationScreen"
     }
 
-    object SessionJoinScreen {
-        const val NAME = "SessionJoinScreen"
-    }
-
     object CompassScreen {
         const val NAME = "CompassScreen"
         const val ROUTE_WITH_ARGS = "CompassScreen/{latitude}/{longitude}"

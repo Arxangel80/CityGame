@@ -1,6 +1,7 @@
 package com.example.citygame.SessionScreens
 
 import android.app.Application
+import android.util.Log.e
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -8,8 +9,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.citygame.R
 import com.example.citygame.data.NetworkModule.apiService
+import com.example.citygame.data.NetworkModule.connectSocket
 import com.example.citygame.data.remote.CreateSessionRequest
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 
 class SessionCreationViewModel(
@@ -49,27 +52,29 @@ class SessionCreationViewModel(
         _toastMessage.value = null
     }
 
-    fun createSession(jwtToken: String) {
+    fun createSession(onSuccess: () -> Unit) {
         viewModelScope.launch {
             try {
-                val response = apiService.createSession(
-                    CreateSessionRequest(),
-                    token = "Bearer $jwtToken"
-                )
+                val response = apiService.createSession(CreateSessionRequest())
                 if (response.isSuccessful) {
-                    response.body()?.let { body ->
-                        _toastMessage.value = "Session created! Code: ${body.session.code}"
-                    } ?: run {
-                        _toastMessage.value = "Empty response from server"
-                    }
+                    _toastMessage.value = "Session created!"
+                    connectSocket()
+                    onSuccess()
                 } else {
-                    _toastMessage.value = "Error creating session: ${response.code()}"
+                    val errorJson = response.errorBody()?.string()
+                    val errorMessage = try {
+                        JSONObject(errorJson).getString("message")
+                    } catch (e: Exception) {
+                        "Error: ${response.code()}"
+                    }
+                    _toastMessage.value = errorMessage
                 }
             } catch (e: Exception) {
                 _toastMessage.value = "Network error: ${e.message}"
             }
         }
     }
+
 
     data class GridItem(
         val picture: Int,

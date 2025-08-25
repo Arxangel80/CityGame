@@ -62,8 +62,8 @@ fun SessionCreationScreen(
             .fillMaxSize()
             .padding(8.dp)
     ) {
-        items(items) { item ->
-            GridItem(item, onClick = { viewModel.createSession() })
+        items(viewModel.items) { item ->
+            GridItem(item, onClick = { viewModel.createSession() { navigateToMain() } })
         }
     }
 }

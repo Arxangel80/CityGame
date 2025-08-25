@@ -23,7 +23,6 @@ import com.example.citygame.auth.RegistrationScreen
 import com.example.citygame.mapScreen.MainScreen
 import com.example.citygame.quests.nfcQuest.NFCRaceQuest
 import com.example.citygame.SessionScreens.SessionCreationScreen
-import com.example.citygame.SessionScreens.SessionJoinScreen
 import com.example.citygame.quests.rleQuest.RLEQuestScreen
 import com.example.citygame.mainQuest.HintScreen
 import com.example.citygame.utils.Quests
@@ -68,11 +67,6 @@ fun AppNavGraph(
                 },
                 onLoginClicked = { navController.navigate(AppScreens.Login.NAME) }
             )
-        }
-        composable(route = AppScreens.SessionJoinScreen.NAME) {
-            SessionJoinScreen(
-                navigateToMain = { navController.navigate(AppScreens.Welcome.NAME) },
-                onCreateClick = { navController.navigate(AppScreens.SessionCreationScreen.NAME) })
         }
 
         composable(route = AppScreens.SessionCreationScreen.NAME) {

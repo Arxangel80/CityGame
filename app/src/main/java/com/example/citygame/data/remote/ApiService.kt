@@ -33,7 +33,6 @@ data class RegisterResponse(
 
 data class CreateSessionResponse(
     val status: String,
-    val session: SessionData
 )
 
 data class CreateSessionRequest(val game_type_name: String = "CAMPUSGAME")
@@ -43,10 +42,6 @@ data class UserData(
     val username: String,
 )
 
-data class SessionData(
-    val code: String
-)
-
 interface ApiService {
     @POST("users/login")
     suspend fun loginUser(@Body request: LoginRequest): Response<LoginResponse>
@@ -54,9 +49,6 @@ interface ApiService {
     @POST("users/signup")
     suspend fun registerUser(@Body request: RegisterRequest): Response<RegisterResponse>
 
-    @POST("/sessions/create")
-    suspend fun createSession(
-        @Body request: CreateSessionRequest,
-        @Header("Authorization") token: String
-    ): Response<CreateSessionResponse>
+    @POST("sessions/create")
+    suspend fun createSession(@Body request: CreateSessionRequest): Response<CreateSessionResponse>
 }
